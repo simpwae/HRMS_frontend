@@ -1,0 +1,301 @@
+@import 'tailwindcss';
+
+:root {
+  /* CECOS University Premium Brand Colors (HSL) */
+  --cecos-maroon: 345 100% 25%; /* #800020 */
+  --cecos-navy: 210 100% 12%; /* #001F3F */
+  --cecos-gold: 45 60% 55%; /* #D4AF37 */
+
+  /* Semantic Colors */
+  --color-primary: var(--cecos-maroon);
+  --color-secondary: var(--cecos-navy);
+  --color-accent: var(--cecos-gold);
+
+  /* Backgrounds */
+  --bg-app: 210 20% 98%; /* Very light blue-gray */
+  --bg-card: 0 0% 100%;
+
+  /* Glassmorphism */
+  --glass-bg: 0 0% 100%;
+  --glass-opacity: 0.7;
+  --glass-border: 255 255 255;
+}
+
+/* Portal-specific themes */
+[data-portal='employee'] {
+  --color-primary: var(--cecos-navy);
+  --color-secondary: var(--cecos-maroon);
+}
+
+[data-portal='hr'] {
+  --color-primary: var(--cecos-maroon);
+  --color-secondary: var(--cecos-navy);
+}
+
+[data-portal='vp'] {
+  --color-primary: 270 50% 30%; /* Deep Purple */
+  --color-secondary: var(--cecos-gold);
+}
+
+[data-portal='dean'] {
+  --color-primary: 215 25% 27%; /* Slate */
+  --color-secondary: var(--cecos-maroon);
+}
+
+[data-portal='hod'] {
+  --color-primary: 160 84% 25%; /* Emerald */
+  --color-secondary: var(--cecos-navy);
+}
+
+[data-portal='admin'] {
+  --color-primary: 0 0% 15%; /* Near black */
+  --color-secondary: var(--cecos-gold);
+}
+
+body {
+  @apply min-h-screen text-gray-800 antialiased;
+  background-color: hsl(var(--bg-app));
+  font-family: 'Inter', sans-serif;
+  background-image:
+    radial-gradient(circle at 10% 20%, hsla(var(--cecos-maroon) / 0.03) 0%, transparent 20%),
+    radial-gradient(circle at 90% 80%, hsla(var(--cecos-navy) / 0.03) 0%, transparent 20%);
+}
+
+@layer utilities {
+  .glass {
+    @apply backdrop-blur-md bg-white/70 border border-white/50 shadow-lg;
+  }
+
+  .glass-dark {
+    @apply backdrop-blur-md bg-slate-900/90 border border-white/10 shadow-lg text-white;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
+  }
+
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-linear-to-r from-[hsl(var(--color-primary))] to-[hsl(var(--color-secondary))];
+  }
+
+  /* Input-with-icon utilities */
+  .input-with-icon {
+    @apply pl-10;
+  }
+
+  .input-icon {
+    @apply w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out forwards;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.3s ease-out forwards;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s infinite;
+}
+
+/* Staggered animations for lists */
+.stagger-animate > * {
+  opacity: 0;
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.stagger-animate > *:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.stagger-animate > *:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.stagger-animate > *:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.stagger-animate > *:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.stagger-animate > *:nth-child(5) {
+  animation-delay: 0.25s;
+}
+.stagger-animate > *:nth-child(6) {
+  animation-delay: 0.3s;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsla(var(--cecos-maroon) / 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsla(var(--cecos-maroon) / 0.6);
+}
+
+/* Form input styles */
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='number'],
+input[type='date'],
+input[type='time'],
+input[type='tel'],
+input[type='url'],
+input[type='search'],
+input[type='month'],
+input[type='week'],
+select,
+textarea {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-sm bg-white shadow-sm;
+  @apply transition-colors duration-200;
+}
+
+/* Unified focus state */
+input:focus,
+select:focus,
+textarea:focus {
+  @apply outline-none ring-2 ring-[hsl(var(--color-primary)/0.2)] border-[hsl(var(--color-primary))];
+}
+
+/* Hover state */
+input:hover,
+select:hover,
+textarea:hover {
+  @apply border-gray-400;
+}
+
+/* Placeholder styling */
+input::placeholder,
+textarea::placeholder {
+  @apply text-gray-400;
+}
+
+/* Disabled state */
+input:disabled,
+select:disabled,
+textarea:disabled {
+  @apply bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200;
+}
+
+/* Error & success utility classes */
+.input-error,
+.has-error input,
+.has-error select,
+.has-error textarea {
+  @apply border-red-300 ring-2 ring-red-200;
+}
+
+.input-success,
+.has-success input,
+.has-success select,
+.has-success textarea {
+  @apply border-green-300 ring-2 ring-green-200;
+}
+
+/* Remove number input spinners for consistency */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+/* Table styles */
+.table-hover tbody tr:hover {
+  @apply bg-gray-50;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .glass,
+  .glass-dark {
+    background: white !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
+}

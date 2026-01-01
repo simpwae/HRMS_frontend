@@ -1,0 +1,40 @@
+---
+title: Basic Employee and HR Class Diagram
+id: b531f0dd-c4e3-4653-87fd-ff36c47d13cc
+---
+classDiagram
+    %% Basic Employee class
+    class Employee {
+        -String employeeId
+        -String name
+        -String email
+        -String position
+        -Double salary
+        -Date hireDate
+        +updateProfile() void
+        +requestLeave() void
+        +viewPayslip() void
+    }
+
+    %% Basic HR class
+    class HR {
+        -String hrId
+        -String name
+        -String email
+        -String department
+        +addEmployee() void
+        +removeEmployee() void
+        +processPayroll() void
+        +approveLeave() void
+        +updateSalary() void
+    }
+
+    %% Simple relationship
+    HR "1" --> "0..*" Employee : manages
+
+    %% Clean styling
+    classDef employeeClass fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef hrClass fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+
+    class Employee employeeClass
+    class HR hrClass

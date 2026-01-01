@@ -1,0 +1,265 @@
+---
+title: University HR Management System - Class Diagram
+---
+classDiagram
+    %% Base Person class
+    class Person {
+        <<abstract>>
+        -String personId
+        -String firstName
+        -String lastName
+        -String email
+        -String phoneNumber
+        -Date dateOfBirth
+        -String address
+        -String nationalId
+        +getFullName() String
+        +updateContact() void
+    }
+
+    %% Employee base class
+    class Employee {
+        -String employeeId
+        -Date hireDate
+        -String position
+        -Double salary
+        -String department
+        -String status
+        -String bankAccount
+        -String emergencyContact
+        +calculateSalary() Double
+        +updatePosition() void
+        +requestLeave() void
+        +getWorkingYears() Integer
+    }
+
+    %% Academic Staff
+    class AcademicStaff {
+        -String academicRank
+        -String qualifications
+        -String researchArea
+        -List~String~ publications
+        -List~String~ coursesTeaching
+        -Double teachingLoad
+        +publishPaper() void
+        +conductResearch() void
+        +teachCourse() void
+        +gradeStudents() void
+    }
+
+    %% Administrative Staff
+    class AdministrativeStaff {
+        -String jobTitle
+        -String workLocation
+        -List~String~ responsibilities
+        -String supervisor
+        +processDocuments() void
+        +handleInquiries() void
+        +manageRecords() void
+    }
+
+    %% Faculty specific roles
+    class Professor {
+        -String tenure
+        -List~String~ researchGrants
+        -Integer phdStudents
+        +supervisePhD() void
+        +reviewPapers() void
+        +leadResearch() void
+    }
+
+    class AssociateProfessor {
+        -String tenureTrack
+        -List~String~ committees
+        +serveOnCommittee() void
+        +mentorJuniorFaculty() void
+    }
+
+    class AssistantProfessor {
+        -Date tenureEligible
+        -String mentor
+        +buildResearchProfile() void
+        +seekTenure() void
+    }
+
+    class Lecturer {
+        -String contractType
+        -Integer courseLoad
+        +deliverLectures() void
+        +prepareCurriculum() void
+    }
+
+    %% HR Department classes
+    class HRDepartment {
+        -String departmentId
+        -String departmentHead
+        -List~HRPersonnel~ staff
+        -String location
+        +manageRecruitment() void
+        +processPayroll() void
+        +handleEmployeeRelations() void
+        +maintainRecords() void
+    }
+
+    class HRPersonnel {
+        -String hrId
+        -String specialization
+        -List~String~ certifications
+        +recruitEmployees() void
+        +conductInterviews() void
+        +processOnboarding() void
+        +handleGrievances() void
+    }
+
+    class HRManager {
+        -List~String~ managedAreas
+        -String budgetAuthority
+        +approvePolicies() void
+        +manageTeam() void
+        +reportToExecutive() void
+    }
+
+    class RecruitmentSpecialist {
+        -List~String~ recruitmentChannels
+        +postJobOpenings() void
+        +screenCandidates() void
+        +coordinateInterviews() void
+    }
+
+    class PayrollSpecialist {
+        -String payrollSystem
+        +calculatePay() void
+        +processBenefits() void
+        +generatePayslips() void
+    }
+
+    %% Support classes
+    class Department {
+        -String deptId
+        -String deptName
+        -String deptHead
+        -String budget
+        -Integer employeeCount
+        +addEmployee() void
+        +removeEmployee() void
+        +allocateBudget() void
+    }
+
+    class LeaveRecord {
+        -String leaveId
+        -String employeeId
+        -String leaveType
+        -Date startDate
+        -Date endDate
+        -String status
+        -String approvedBy
+        +submitRequest() void
+        +approveLeave() void
+        +rejectLeave() void
+    }
+
+    class PayrollRecord {
+        -String recordId
+        -String employeeId
+        -Date payPeriod
+        -Double basicSalary
+        -Double allowances
+        -Double deductions
+        -Double netPay
+        +calculatePay() void
+        +generateSlip() void
+    }
+
+    class PerformanceReview {
+        -String reviewId
+        -String employeeId
+        -Date reviewDate
+        -String reviewerId
+        -Integer rating
+        -String comments
+        -String goals
+        +conductReview() void
+        +setGoals() void
+        +trackProgress() void
+    }
+
+    class Contract {
+        -String contractId
+        -String contractType
+        -Date startDate
+        -Date endDate
+        -String terms
+        -String status
+        +renewContract() void
+        +terminateContract() void
+        +amendTerms() void
+    }
+
+    %% Training and Development
+    class TrainingProgram {
+        -String programId
+        -String programName
+        -String description
+        -Date startDate
+        -Date endDate
+        -String instructor
+        -List~Employee~ participants
+        +enrollEmployee() void
+        +conductTraining() void
+        +evaluateProgress() void
+    }
+
+    %% Relationships - Inheritance
+    Person <|-- Employee
+    Employee <|-- AcademicStaff
+    Employee <|-- AdministrativeStaff
+    Employee <|-- HRPersonnel
+    
+    AcademicStaff <|-- Professor
+    AcademicStaff <|-- AssociateProfessor
+    AcademicStaff <|-- AssistantProfessor
+    AcademicStaff <|-- Lecturer
+    
+    HRPersonnel <|-- HRManager
+    HRPersonnel <|-- RecruitmentSpecialist
+    HRPersonnel <|-- PayrollSpecialist
+
+    %% Composition and Aggregation
+    HRDepartment *-- HRPersonnel : manages
+    Department o-- Employee : employs
+    University *-- HRDepartment : has
+
+    %% Associations
+    Employee "1" --> "0..*" LeaveRecord : requests
+    Employee "1" --> "0..*" PayrollRecord : receives
+    Employee "1" --> "0..*" PerformanceReview : undergoes
+    Employee "1" --> "1" Contract : governed by
+    Employee "0..*" --> "0..*" TrainingProgram : participates in
+
+    HRPersonnel "1" --> "0..*" Employee : manages
+    HRManager "1" --> "1..*" HRPersonnel : supervises
+    
+    Department "1" --> "1" Employee : headed by
+    Professor "1" --> "0..*" AssistantProfessor : mentors
+
+    %% University as the main entity
+    class University {
+        -String universityId
+        -String name
+        -String address
+        -String accreditation
+        -Date established
+        -List~Department~ departments
+        +addDepartment() void
+        +removeDepartment() void
+        +generateReports() void
+    }
+
+    University "1" --> "1..*" Department : contains
+    University "1" --> "1..*" Employee : employs
+
+    %% Notes for clarity
+    note for Employee "Base class for all university employees\nContains common attributes and methods"
+    note for HRDepartment "Handles all HR operations\nincluding recruitment, payroll, and employee relations"
+    note for AcademicStaff "Faculty members responsible\nfor teaching and research"
+    note "All employees have contracts\nand performance reviews"

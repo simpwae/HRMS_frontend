@@ -1,0 +1,143 @@
+---
+title: Simplified University HR and Employee Class Diagram
+---
+classDiagram
+    %% Core Person and Employee Classes
+    class Person {
+        <<abstract>>
+        -String personId
+        -String firstName
+        -String lastName
+        -String email
+        -String phoneNumber
+        +getFullName() String
+        +updateContact() void
+    }
+
+    class Employee {
+        -String employeeId
+        -Date hireDate
+        -String position
+        -Double salary
+        -String department
+        -String status
+        +calculateSalary() Double
+        +updatePosition() void
+        +requestLeave() void
+    }
+
+    %% Main Employee Types
+    class AcademicStaff {
+        -String academicRank
+        -String qualifications
+        -String researchArea
+        -List~String~ publications
+        +publishPaper() void
+        +teachCourse() void
+        +conductResearch() void
+    }
+
+    class AdministrativeStaff {
+        -String jobTitle
+        -String workLocation
+        -List~String~ responsibilities
+        +processDocuments() void
+        +manageRecords() void
+    }
+
+    class HRPersonnel {
+        -String hrId
+        -String specialization
+        -List~String~ certifications
+        +recruitEmployees() void
+        +processOnboarding() void
+        +handleGrievances() void
+    }
+
+    %% HR Management
+    class HRDepartment {
+        -String departmentId
+        -String departmentHead
+        -List~HRPersonnel~ staff
+        +manageRecruitment() void
+        +processPayroll() void
+        +handleEmployeeRelations() void
+    }
+
+    class HRManager {
+        -List~String~ managedAreas
+        -String budgetAuthority
+        +approvePolicies() void
+        +manageTeam() void
+        +reportToExecutive() void
+    }
+
+    %% Essential Records
+    class LeaveRecord {
+        -String leaveId
+        -String employeeId
+        -String leaveType
+        -Date startDate
+        -Date endDate
+        -String status
+        +submitRequest() void
+        +approveLeave() void
+    }
+
+    class Contract {
+        -String contractId
+        -String contractType
+        -Date startDate
+        -Date endDate
+        -String terms
+        +renewContract() void
+        +terminateContract() void
+    }
+
+    %% University Structure
+    class University {
+        -String universityId
+        -String name
+        -String address
+        +addEmployee() void
+        +generateReports() void
+    }
+
+    class Department {
+        -String deptId
+        -String deptName
+        -String deptHead
+        -Integer employeeCount
+        +addEmployee() void
+        +removeEmployee() void
+    }
+
+    %% Inheritance Relationships
+    Person <|-- Employee
+    Employee <|-- AcademicStaff
+    Employee <|-- AdministrativeStaff
+    Employee <|-- HRPersonnel
+    HRPersonnel <|-- HRManager
+
+    %% Composition and Aggregation
+    University *-- HRDepartment : contains
+    University *-- Department : contains
+    HRDepartment *-- HRPersonnel : manages
+    Department o-- Employee : employs
+
+    %% Key Associations
+    Employee "1" --> "0..*" LeaveRecord : requests
+    Employee "1" --> "1" Contract : governed by
+    HRPersonnel "1" --> "0..*" Employee : manages
+    HRManager "1" --> "1..*" HRPersonnel : supervises
+
+    %% Styling for better visibility
+    classDef employeeClass fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef hrClass fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef structureClass fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef recordClass fill:#fff3e0,stroke:#e65100,stroke-width:2px
+
+    cssClass "Employee,AcademicStaff,AdministrativeStaff" employeeClass
+    cssClass "HRPersonnel,HRManager,HRDepartment" hrClass
+    cssClass "University,Department" structureClass
+    cssClass "LeaveRecord,Contract" recordClass

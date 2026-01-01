@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  hrms-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hrms-frontend
+    ports:
+      - '3000:80'
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - hrms-network
+
+  # Optional: Development mode with hot reload
+  hrms-dev:
+    image: node:20-alpine
+    container_name: hrms-dev
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - '5173:5173'
+    command: sh -c "npm install && npm run dev -- --host"
+    environment:
+      - NODE_ENV=development
+    networks:
+      - hrms-network
+    profiles:
+      - dev
+
+networks:
+  hrms-network:
+    driver: bridge
