@@ -637,36 +637,91 @@ const initialPromotions = [
 // Initial resignations
 const initialResignations = [
   {
-    id: 'res1',
-    employeeId: 'e6',
-    employeeName: 'Sana Malik',
-    department: 'Physics',
-    faculty: 'Sciences',
-    designation: 'Lecturer',
-    reason: 'Higher studies abroad',
-    noticePeriod: 60,
-    lastWorkingDate: format(addDays(today, 30), 'yyyy-MM-dd'),
+    id: 'r1',
+    employeeId: 'e1',
+    employeeName: 'Alice Smith',
+    department: 'CS',
+    faculty: 'Computing',
+    noticeDate: format(subDays(today, 45), 'yyyy-MM-dd'),
+    lastWorkingDate: format(subDays(today, 15), 'yyyy-MM-dd'),
+    reason: 'Better opportunity',
     status: 'Pending',
-    appliedOn: format(subDays(today, 5), 'yyyy-MM-dd'),
-    exitSurvey: null,
-    hrApproval: null,
-    handoverStatus: 'pending',
+    handoverStatus: 'in-progress',
     exitInterview: null,
     exitDocuments: [],
+    exitSurvey: null,
   },
 ];
 
-// Initial ex-employees
+// Initial PAMS submissions (multi-section faculty/HOD/VC workflow)
+const initialPamsSubmissions = [
+  {
+    id: generateId('pams'),
+    category: 'faculty',
+    employeeId: 'e1',
+    employeeName: 'Alice Smith',
+    department: 'CS',
+    faculty: 'Computing',
+    period: '2025-Q3',
+    status: 'submitted',
+    workload: {
+      teachingLoad: '3 courses across 2 sections; labs included with prep and grading.',
+      projectSupervision: '2 FYP teams supervised; co-supervision with clear role split.',
+      advisory: 'Advisor for CS-21 batch (~50 students).',
+      admin: 'Exam coordinator (weekly) plus QEC focal (biweekly).',
+    },
+    rubric: {
+      teaching: 'SETE strong; course files updated; 100% syllabus coverage.',
+      research: '2 W-category publications; 1 grant proposal submitted to HEC.',
+      service: 'Seminar series coordination; curriculum review committee member.',
+    },
+    grievance: '',
+    attachments: [{ id: generateId('doc'), name: 'Workload Form.pdf', type: 'workload', url: '#' }],
+    submittedAt: format(subDays(today, 5), 'yyyy-MM-dd'),
+    hodReview: { status: 'pending', comment: null, meetingDate: null, decidedAt: null },
+    vcReview: { status: 'pending', comment: null, decidedAt: null },
+    history: [{ action: 'submitted', by: 'employee', at: format(subDays(today, 5), 'yyyy-MM-dd') }],
+  },
+  {
+    id: generateId('pams'),
+    category: 'hod',
+    employeeId: 'u-hod',
+    employeeName: 'Dr. Imran Shah',
+    department: 'CS',
+    faculty: 'Computing',
+    period: '2025-Q3',
+    status: 'dean-review',
+    workload: {
+      teachingLoad: 'Led department teaching plan; taught 1 course to CS-21.',
+      projectSupervision: 'Oversaw FYP panel distribution; co-supervised 1 project.',
+      advisory: 'Advised faculty on curriculum mapping; weekly office hours.',
+      admin: 'Department budgeting, QEC liaison, hiring coordination.',
+    },
+    rubric: {
+      teaching: 'Reviewed course files; ensured accreditation compliance.',
+      research: '1 grant submitted; 1 journal paper under review.',
+      service: 'Chaired curriculum committee; external outreach to industry.',
+    },
+    grievance: '',
+    attachments: [],
+    submittedAt: format(subDays(today, 6), 'yyyy-MM-dd'),
+    hodReview: null,
+    deanReview: { status: 'pending', comment: null, meetingDate: null, decidedAt: null },
+    history: [{ action: 'submitted', by: 'hod', at: format(subDays(today, 6), 'yyyy-MM-dd') }],
+  },
+];
+
+// Former employees / alumni
 const initialExEmployees = [
   {
     id: 'alum1',
     employeeId: 'ex-e10',
-    name: 'Dr. Rashid Khan',
-    email: 'rashid.khan@gmail.com',
-    department: 'EE',
-    faculty: 'Engineering',
+    name: 'Dr. Salman Khan',
+    email: 'salman.khan@alumni.cecos.edu.pk',
+    department: 'CS',
+    faculty: 'Computing',
     designation: 'Associate Professor',
-    joinDate: '2015-06-01',
+    joinDate: format(subDays(today, 8 * 365), 'yyyy-MM-dd'),
     exitDate: format(subDays(today, 180), 'yyyy-MM-dd'),
     yearsOfService: 8,
     exitReason: 'Better Opportunity',
@@ -1034,6 +1089,7 @@ export const useDataStore = create(
       payrollRuns: initialPayrollRuns,
       attendanceCorrections: initialAttendanceCorrections,
       performanceReviews: initialPerformanceReviews,
+      pamsSubmissions: initialPamsSubmissions,
       candidates: initialCandidates,
       documents: initialDocuments,
 
@@ -2538,6 +2594,182 @@ export const useDataStore = create(
         return { overallAvg, avgByDepartment, topPerformers, count: filtered.length };
       },
 
+      // ============ PAMS SUBMISSIONS (FORMS + APPROVAL FLOW) ============
+      submitPamsForm: (payload) => {
+        const now = format(new Date(), 'yyyy-MM-dd');
+        const base = {
+          id: generateId('pams'),
+          status: 'submitted',
+          submittedAt: now,
+          category: payload.category || 'faculty',
+          hodReview: { status: 'pending', comment: null, meetingDate: null, decidedAt: null },
+          vcReview: { status: 'pending', comment: null, decidedAt: null },
+          deanReview:
+            payload.category === 'hod'
+              ? { status: 'pending', comment: null, meetingDate: null, decidedAt: null }
+              : null,
+          history: [{ action: 'submitted', by: payload.by || 'employee', at: now }],
+        };
+
+        set((s) => ({
+          pamsSubmissions: [{ ...base, ...payload }, ...s.pamsSubmissions],
+        }));
+      },
+
+      updatePamsSubmission: (id, updates) =>
+        set((s) => ({
+          pamsSubmissions: s.pamsSubmissions.map((p) =>
+            p.id === id
+              ? {
+                  ...p,
+                  ...updates,
+                  history: updates.resubmitted
+                    ? [
+                        ...p.history,
+                        {
+                          action: 'resubmitted',
+                          by: updates.by || 'employee',
+                          at: format(new Date(), 'yyyy-MM-dd'),
+                        },
+                      ]
+                    : p.history,
+                  status: updates.resubmitted ? 'submitted' : updates.status || p.status,
+                  submittedAt: updates.resubmitted
+                    ? format(new Date(), 'yyyy-MM-dd')
+                    : p.submittedAt,
+                }
+              : p,
+          ),
+        })),
+
+      hodReviewPams: (id, decision) =>
+        set((s) => ({
+          pamsSubmissions: s.pamsSubmissions.map((p) => {
+            if (p.id !== id) return p;
+            if (p.category === 'hod') return p; // HOD self PAMS handled by dean
+            const status = decision.action === 'confirm' ? 'hod-confirmed' : 'returned';
+            const entry = {
+              ...p,
+              status,
+              hodReview: {
+                status,
+                comment: decision.comment || null,
+                meetingDate: decision.meetingDate || null,
+                decidedAt: format(new Date(), 'yyyy-MM-dd'),
+              },
+              followUpMeeting:
+                decision.action === 'confirm'
+                  ? {
+                      topic: 'Department performance follow-up',
+                      scheduledAt:
+                        decision.followUpDate ||
+                        decision.meetingDate ||
+                        format(new Date(), 'yyyy-MM-dd'),
+                      status: 'pending',
+                    }
+                  : p.followUpMeeting,
+              history: [
+                ...p.history,
+                {
+                  action: decision.action === 'confirm' ? 'hod-confirmed' : 'returned',
+                  by: decision.by || 'hod',
+                  at: format(new Date(), 'yyyy-MM-dd'),
+                  note: decision.comment || null,
+                },
+              ],
+            };
+            return entry;
+          }),
+        })),
+
+      vcApprovePams: (id, decision) =>
+        set((s) => ({
+          pamsSubmissions: s.pamsSubmissions.map((p) => {
+            if (p.id !== id) return p;
+            if (p.category === 'hod') return p; // HOD PAMS go to dean
+            const status = decision.action === 'return' ? 'returned' : 'vc-approved';
+            const vcReview = {
+              status,
+              comment: decision.comment || null,
+              decidedAt: format(new Date(), 'yyyy-MM-dd'),
+            };
+            return {
+              ...p,
+              status,
+              vcReview,
+              history: [
+                ...p.history,
+                {
+                  action: status,
+                  by: decision.by || 'vc',
+                  at: vcReview.decidedAt,
+                  note: decision.comment || null,
+                },
+              ],
+            };
+          }),
+        })),
+
+      getPamsForEmployee: (employeeId) =>
+        get().pamsSubmissions.filter((p) => p.employeeId === employeeId),
+
+      getPamsForHod: (department) =>
+        get().pamsSubmissions.filter(
+          (p) =>
+            p.category === 'faculty' &&
+            p.department === department &&
+            ['submitted', 'returned'].includes(p.status),
+        ),
+
+      getPamsForVc: () => get().pamsSubmissions.filter((p) => p.status === 'hod-confirmed'),
+
+      // Dean handles HOD PAMS
+      getPamsForDean: (faculty) =>
+        get().pamsSubmissions.filter(
+          (p) =>
+            p.category === 'hod' &&
+            p.faculty === faculty &&
+            ['dean-review', 'returned'].includes(p.status),
+        ),
+
+      deanReviewPams: (id, decision) =>
+        set((s) => ({
+          pamsSubmissions: s.pamsSubmissions.map((p) => {
+            if (p.id !== id) return p;
+            if (p.category !== 'hod') return p;
+            const status = decision.action === 'return' ? 'returned' : 'dean-confirmed';
+            const deanReview = {
+              status,
+              comment: decision.comment || null,
+              meetingDate: decision.meetingDate || null,
+              decidedAt: format(new Date(), 'yyyy-MM-dd'),
+            };
+            return {
+              ...p,
+              status,
+              deanReview,
+              followUpMeeting:
+                decision.action === 'confirm'
+                  ? {
+                      topic: 'Department performance review with Dean',
+                      scheduledAt:
+                        decision.followUpDate || decision.meetingDate || deanReview.decidedAt,
+                      status: 'pending',
+                    }
+                  : p.followUpMeeting,
+              history: [
+                ...p.history,
+                {
+                  action: status,
+                  by: decision.by || 'dean',
+                  at: deanReview.decidedAt,
+                  note: decision.comment || null,
+                },
+              ],
+            };
+          }),
+        })),
+
       // ============ OPERATIONAL ANALYTICS ============
       getOvertimeStats: ({
         month = new Date().getMonth() + 1,
@@ -2776,6 +3008,7 @@ export const useDataStore = create(
           payrollRuns: initialPayrollRuns,
           attendanceCorrections: initialAttendanceCorrections,
           performanceReviews: initialPerformanceReviews,
+          pamsSubmissions: initialPamsSubmissions,
         }),
     }),
     {
@@ -2797,6 +3030,7 @@ export const useDataStore = create(
         payrollRuns: state.payrollRuns,
         attendanceCorrections: state.attendanceCorrections,
         performanceReviews: state.performanceReviews,
+        pamsSubmissions: state.pamsSubmissions,
       }),
     },
   ),

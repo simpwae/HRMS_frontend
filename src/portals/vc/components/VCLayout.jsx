@@ -9,6 +9,7 @@ const navItems = [
   { path: '/vc', label: 'Dashboard', icon: ChartBarIcon, end: true },
   { path: '/vc/medical-leaves', label: 'Medical Leaves', icon: DocumentTextIcon },
   { path: '/vc/analytics', label: 'Analytics', icon: ClipboardDocumentCheckIcon },
+  { path: '/vc/pams', label: 'PAMS', icon: ClipboardDocumentCheckIcon },
 ];
 
 export default function VCLayout() {

@@ -10,6 +10,7 @@ import CommitteeMeetings from './pages/CommitteeMeetings';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import SelfService from './pages/SelfService';
+import PAMS from './pages/PAMS';
 
 export default function DeanPortal() {
   return (
@@ -21,6 +22,7 @@ export default function DeanPortal() {
         <Route path="leaves" element={<FacultyLeaves />} />
         <Route path="promotions" element={<Promotions />} />
         <Route path="meetings" element={<CommitteeMeetings />} />
+        <Route path="pams" element={<PAMS />} />
         <Route path="self-service" element={<SelfService />} />
         <Route path="reports" element={<Reports />} />
         <Route path="settings" element={<Settings />} />

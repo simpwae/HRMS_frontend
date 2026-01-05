@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import Promotions from './pages/Promotions';
 import Resignation from './pages/Resignation';
 import PolicyAdvisory from './pages/PolicyAdvisory';
+import PAMS from './pages/PAMS';
 
 export const employeeRoutes = (
   <Route
@@ -31,5 +32,6 @@ export const employeeRoutes = (
     <Route path="promotions" element={<Promotions />} />
     <Route path="resignation" element={<Resignation />} />
     <Route path="policy-advisory" element={<PolicyAdvisory />} />
+    <Route path="pams" element={<PAMS />} />
   </Route>
 );

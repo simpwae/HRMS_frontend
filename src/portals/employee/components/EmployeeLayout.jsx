@@ -17,6 +17,7 @@ const navItems = [
   { path: '/employee/leave', label: 'Leave', icon: CalendarDaysIcon },
   { path: '/employee/salary', label: 'Salary', icon: BanknotesIcon },
   { path: '/employee/self-service', label: 'Self-Service', icon: ClipboardDocumentListIcon },
+  { path: '/employee/pams', label: 'PAMS', icon: ShieldCheckIcon },
   { path: '/employee/promotions', label: 'Promotions', icon: ArrowTrendingUpIcon },
   { path: '/employee/resignation', label: 'Resignation', icon: ArrowRightOnRectangleIcon },
   { path: '/employee/policy-advisory', label: 'Policy Advisory', icon: ShieldCheckIcon },

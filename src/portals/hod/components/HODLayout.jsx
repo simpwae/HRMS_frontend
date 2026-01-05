@@ -15,6 +15,7 @@ const navItems = [
   { path: '/hod/attendance', label: 'Attendance', icon: ClockIcon },
   { path: '/hod/leaves', label: 'Leave Requests', icon: CalendarDaysIcon },
   { path: '/hod/self-service', label: 'Manager Self-Service', icon: ClipboardDocumentListIcon },
+  { path: '/hod/pams', label: 'PAMS', icon: DocumentChartBarIcon },
   { path: '/hod/reports', label: 'Reports', icon: DocumentChartBarIcon },
   { path: '/hod/settings', label: 'Settings', icon: Cog6ToothIcon },
 ];

@@ -11,4 +11,16 @@ export default defineConfig({
   plugins: [react()],
   base,
   server: { port: 5173 },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'date-utils': ['date-fns'],
+          state: ['zustand'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1600,
+  },
 });

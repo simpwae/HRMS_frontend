@@ -10,6 +10,7 @@ import Promotions from './pages/Promotions';
 import CommitteeMeetings from './pages/CommitteeMeetings';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import PAMS from './pages/PAMS';
 
 export const deanRoutes = (
   <Route
@@ -26,6 +27,7 @@ export const deanRoutes = (
     <Route path="leaves" element={<FacultyLeaves />} />
     <Route path="promotions" element={<Promotions />} />
     <Route path="meetings" element={<CommitteeMeetings />} />
+    <Route path="pams" element={<PAMS />} />
     <Route path="reports" element={<Reports />} />
     <Route path="settings" element={<Settings />} />
   </Route>

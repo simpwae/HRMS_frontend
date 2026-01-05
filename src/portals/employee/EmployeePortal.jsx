@@ -10,6 +10,7 @@ import Promotions from './pages/Promotions';
 import Resignation from './pages/Resignation';
 import PolicyAdvisory from './pages/PolicyAdvisory';
 import SelfService from './pages/SelfService';
+import PAMS from './pages/PAMS';
 
 export default function EmployeePortal() {
   return (
@@ -24,6 +25,7 @@ export default function EmployeePortal() {
         <Route path="promotions" element={<Promotions />} />
         <Route path="resignation" element={<Resignation />} />
         <Route path="policy-advisory" element={<PolicyAdvisory />} />
+        <Route path="pams" element={<PAMS />} />
         <Route path="*" element={<Navigate to="." replace />} />
       </Route>
     </Routes>
