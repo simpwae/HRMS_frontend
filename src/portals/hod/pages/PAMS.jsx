@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ClipboardDocumentCheckIcon,
   UserGroupIcon,
@@ -9,7 +9,6 @@ import {
 import Card from '../../../components/Card';
 import Button from '../../../components/Button';
 import Badge from '../../../components/Badge';
-import FileUpload from '../../../components/FileUpload';
 import { useAuthStore } from '../../../state/auth';
 import { useDataStore } from '../../../state/data';
 
@@ -20,34 +19,26 @@ const statusVariant = {
   'vc-approved': 'success',
 };
 
+const achievementLevels = {
+  fully: { label: 'Fully Achieved', marks: 100 },
+  largely: { label: 'Largely Achieved', marks: 85 },
+  partially: { label: 'Partially Achieved', marks: 70 },
+  not: { label: 'Not Achieved', marks: 0 },
+};
+
 export default function HODPAMS() {
   const { user } = useAuthStore();
   const getPamsForHod = useDataStore((s) => s.getPamsForHod);
   const hodReviewPams = useDataStore((s) => s.hodReviewPams);
-  const updatePamsSubmission = useDataStore((s) => s.updatePamsSubmission);
   const [selected, setSelected] = useState(null);
   const [comment, setComment] = useState('');
   const [meetingDate, setMeetingDate] = useState('');
   const [followUpDate, setFollowUpDate] = useState('');
-  const [draft, setDraft] = useState(null);
 
   const submissions = useMemo(
     () => (user?.department ? getPamsForHod(user.department) : []),
     [getPamsForHod, user],
   );
-
-  useEffect(() => {
-    if (selected) {
-      setDraft({
-        workload: { ...selected.workload },
-        rubric: { ...selected.rubric },
-        grievance: selected.grievance || '',
-        attachments: selected.attachments || [],
-      });
-    } else {
-      setDraft(null);
-    }
-  }, [selected]);
 
   const handleDecision = (action) => {
     if (!selected) return;
@@ -62,22 +53,6 @@ export default function HODPAMS() {
     setMeetingDate('');
     setSelected(null);
     setFollowUpDate('');
-  };
-
-  const handleSaveEdits = () => {
-    if (!selected || !draft) return;
-    updatePamsSubmission(selected.id, {
-      workload: draft.workload,
-      rubric: draft.rubric,
-      grievance: draft.grievance,
-      attachments: (draft.attachments || []).map((f) => ({
-        id: f.id,
-        name: f.name,
-        size: f.size,
-        type: f.type,
-      })),
-    });
-    setSelected((prev) => (prev ? { ...prev, ...draft } : prev));
   };
 
   return (
@@ -139,65 +114,59 @@ export default function HODPAMS() {
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <EditableField
-              label="Teaching load"
-              value={draft?.workload?.teachingLoad || ''}
-              onChange={(v) =>
-                setDraft((d) => ({ ...d, workload: { ...d.workload, teachingLoad: v } }))
-              }
+          <div className="space-y-4">
+            <SectionTitle>Teaching Assessment</SectionTitle>
+            <AchievementRow
+              label="Student Evaluation (SETE)"
+              value={selected.teachingAssessment?.studentEvaluation}
             />
-            <EditableField
-              label="Project supervision"
-              value={draft?.workload?.projectSupervision || ''}
-              onChange={(v) =>
-                setDraft((d) => ({ ...d, workload: { ...d.workload, projectSupervision: v } }))
-              }
+            <AchievementRow
+              label="Teaching Workload"
+              value={selected.teachingAssessment?.teachingWorkload}
             />
-            <EditableField
-              label="Advisory"
-              value={draft?.workload?.advisory || ''}
-              onChange={(v) =>
-                setDraft((d) => ({ ...d, workload: { ...d.workload, advisory: v } }))
-              }
+            <AchievementRow
+              label="Course Completion"
+              value={selected.teachingAssessment?.courseCompletion}
             />
-            <EditableField
-              label="Administrative"
-              value={draft?.workload?.admin || ''}
-              onChange={(v) => setDraft((d) => ({ ...d, workload: { ...d.workload, admin: v } }))}
-            />
-            <EditableField
-              label="Teaching effectiveness"
-              value={draft?.rubric?.teaching || ''}
-              onChange={(v) => setDraft((d) => ({ ...d, rubric: { ...d.rubric, teaching: v } }))}
-            />
-            <EditableField
-              label="Research & funding"
-              value={draft?.rubric?.research || ''}
-              onChange={(v) => setDraft((d) => ({ ...d, rubric: { ...d.rubric, research: v } }))}
-            />
-            <EditableField
-              label="Service & community"
-              value={draft?.rubric?.service || ''}
-              onChange={(v) => setDraft((d) => ({ ...d, rubric: { ...d.rubric, service: v } }))}
-            />
-            <EditableField
-              label="Grievance/Suggestion"
-              value={draft?.grievance || ''}
-              onChange={(v) => setDraft((d) => ({ ...d, grievance: v }))}
-              rows={3}
-            />
-          </div>
 
-          <div className="mt-4">
-            <FileUpload
-              label="Attachments"
-              value={draft?.attachments || []}
-              onChange={(files) => setDraft((d) => ({ ...d, attachments: files }))}
-              helper="Add or review workload forms, rubric files, evidence."
-              maxFiles={10}
-              maxSizeMB={15}
-            />
+            <SectionTitle>Research & Supervision</SectionTitle>
+            <AchievementRow label="FYP Supervision / Academic" value={selected.fypSupervision} />
+            <AchievementRow label="MS/PhD Thesis Supervision" value={selected.msPhDSupervision} />
+            <AchievementRow label="Research Publications" value={selected.researchPublications} />
+            <AchievementRow label="Research Funding" value={selected.researchFunding} />
+
+            <SectionTitle>Service & Administration</SectionTitle>
+            <AchievementRow label="Administrative Duties" value={selected.administrativeDuties} />
+            <AchievementRow label="Service to Community" value={selected.serviceToCommunity} />
+
+            {selected.grievance && (
+              <div className="border rounded-lg p-3 bg-gray-50">
+                <p className="text-sm font-semibold text-gray-800">Grievance / Suggestion</p>
+                <p className="text-sm text-gray-700 mt-1 whitespace-pre-line">
+                  {selected.grievance}
+                </p>
+              </div>
+            )}
+
+            {selected.attachments?.length ? (
+              <div className="border rounded-lg p-3 bg-gray-50">
+                <p className="text-sm font-semibold text-gray-800 mb-1">Attachments</p>
+                <ul className="text-sm text-gray-700 space-y-2">
+                  {selected.attachments.map((f) => (
+                    <li key={f.id} className="flex items-center justify-between gap-3">
+                      <span className="font-medium text-gray-900">{f.name || f.id}</span>
+                      <span className="text-xs text-gray-500">
+                        {(f.size ? Math.round(f.size / 1024) : 0) || 0} KB
+                        {f.type ? ` · ${f.type}` : ''}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-[11px] text-gray-500 mt-1">
+                  Files are stored in submission; download/view is not available in this mock UI.
+                </p>
+              </div>
+            ) : null}
           </div>
 
           <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -252,14 +221,6 @@ export default function HODPAMS() {
               Clear selection
             </Button>
             <Button
-              variant="secondary"
-              onClick={handleSaveEdits}
-              disabled={!draft}
-              className="flex items-center gap-2"
-            >
-              Save edits
-            </Button>
-            <Button
               variant="outline"
               onClick={() => handleDecision('return')}
               className="flex items-center gap-2"
@@ -279,15 +240,28 @@ export default function HODPAMS() {
 }
 
 function EditableField({ label, value, onChange, rows = 2 }) {
+  return null;
+}
+
+function AchievementRow({ label, value }) {
+  const meta = value ? achievementLevels[value] : null;
   return (
-    <label className="block text-sm font-medium text-gray-700">
-      {label}
-      <textarea
-        rows={rows}
-        className="mt-1"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    </label>
+    <div className="flex items-center justify-between border rounded-lg p-3 bg-white">
+      <div>
+        <p className="text-sm font-semibold text-gray-800">{label}</p>
+        <p className="text-xs text-gray-600">
+          {meta ? `${meta.label} (${meta.marks} marks)` : 'No selection provided'}
+        </p>
+      </div>
+      {meta && (
+        <span className="px-2 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+          {meta.label}
+        </span>
+      )}
+    </div>
   );
+}
+
+function SectionTitle({ children }) {
+  return <p className="text-sm font-semibold text-gray-900 mt-2">{children}</p>;
 }

@@ -17,6 +17,13 @@ const statusVariant = {
   'dean-confirmed': 'success',
 };
 
+const achievementLevels = {
+  fully: { label: 'Fully Achieved', marks: 100 },
+  largely: { label: 'Largely Achieved', marks: 85 },
+  partially: { label: 'Partially Achieved', marks: 70 },
+  not: { label: 'Not Achieved', marks: 0 },
+};
+
 export default function DeanPAMS() {
   const { user } = useAuthStore();
   const getPamsForDean = useDataStore((s) => s.getPamsForDean);
@@ -104,38 +111,75 @@ export default function DeanPAMS() {
 
       {selected && (
         <Card>
-          <div className="grid gap-3 md:grid-cols-2">
-            <Info label="Teaching load" value={selected.workload?.teachingLoad} />
-            <Info label="Project supervision" value={selected.workload?.projectSupervision} />
-            <Info label="Advisory" value={selected.workload?.advisory} />
-            <Info label="Administrative" value={selected.workload?.admin} />
-            <Info label="Teaching effectiveness" value={selected.rubric?.teaching} />
-            <Info label="Research & funding" value={selected.rubric?.research} />
-            <Info label="Service & community" value={selected.rubric?.service} />
-            <Info label="Grievance/Suggestion" value={selected.grievance || 'None'} />
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="font-semibold text-gray-900">
+                {selected.employeeName || selected.employeeId}
+              </p>
+              <p className="text-xs text-gray-500">HOD Performance · {selected.period}</p>
+            </div>
+            <Badge variant={statusVariant[selected.status] || 'secondary'}>{selected.status}</Badge>
           </div>
 
-          {selected.followUpMeeting && (
-            <div className="mt-3 border rounded-lg p-3 bg-gray-50">
-              <p className="text-sm font-semibold text-gray-800">
-                Department performance follow-up
-              </p>
-              <p className="text-sm text-gray-700">
-                Scheduled: {selected.followUpMeeting.scheduledAt || 'TBD'} · Status:{' '}
-                {selected.followUpMeeting.status || 'pending'}
-              </p>
-              {selected.followUpMeeting.topic && (
-                <p className="text-xs text-gray-500 mt-1">{selected.followUpMeeting.topic}</p>
-              )}
+          <div className="space-y-3 max-h-96 overflow-y-auto mb-4">
+            <div className="border-t pt-3">
+              <p className="text-sm font-semibold text-gray-900 mb-2">Leadership</p>
+              <AchievementDisplay label="Leadership" value={selected.leadership} />
             </div>
-          )}
+
+            <div className="border-t pt-3">
+              <p className="text-sm font-semibold text-gray-900 mb-2">Curriculum & Instruction</p>
+              <AchievementDisplay
+                label="Curriculum Instruction"
+                value={selected.curriculumInstruction}
+              />
+            </div>
+
+            <div className="border-t pt-3">
+              <p className="text-sm font-semibold text-gray-900 mb-2">Management</p>
+              <AchievementDisplay
+                label="Management & Admin"
+                value={selected.managementAdministration}
+              />
+            </div>
+
+            <div className="border-t pt-3">
+              <p className="text-sm font-semibold text-gray-900 mb-2">Personnel</p>
+              <AchievementDisplay label="Personnel" value={selected.personnel} />
+            </div>
+
+            <div className="border-t pt-3">
+              <p className="text-sm font-semibold text-gray-900 mb-2">Promotion & Tenure</p>
+              <AchievementDisplay label="Promotion & Tenure" value={selected.promotionTenure} />
+            </div>
+
+            {selected.grievance && (
+              <div className="border-t pt-3">
+                <p className="text-sm font-semibold text-gray-900 mb-2">Grievance/Comments</p>
+                <p className="text-sm text-gray-700">{selected.grievance}</p>
+              </div>
+            )}
+
+            {selected.attachments && selected.attachments.length > 0 && (
+              <div className="border-t pt-3">
+                <p className="text-sm font-semibold text-gray-900 mb-2">Attachments</p>
+                <div className="space-y-1">
+                  {selected.attachments.map((att) => (
+                    <p key={att.id} className="text-xs text-gray-600">
+                      📎 {att.name} ({att.size && `${Math.round(att.size / 1024)}KB`})
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           <div className="mt-4 grid gap-3 md:grid-cols-3">
             <label className="text-sm font-medium text-gray-700">
               Meeting date
               <input
                 type="date"
-                className="mt-1"
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
                 value={meetingDate}
                 onChange={(e) => setMeetingDate(e.target.value)}
               />
@@ -144,7 +188,7 @@ export default function DeanPAMS() {
               Follow-up meeting
               <input
                 type="date"
-                className="mt-1"
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
                 value={followUpDate}
                 onChange={(e) => setFollowUpDate(e.target.value)}
                 placeholder="Optional"
@@ -154,7 +198,7 @@ export default function DeanPAMS() {
               Comments / corrections
               <textarea
                 rows={2}
-                className="mt-1"
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Meeting notes or required changes"
@@ -178,7 +222,10 @@ export default function DeanPAMS() {
             </div>
           </div>
 
-          <div className="flex flex-wrap justify-end gap-2 mt-4">
+          <div className="flex flex-wrap justify-end gap-2 mt-4 border-t pt-4">
+            <Button variant="secondary" onClick={() => setSelected(null)}>
+              Cancel
+            </Button>
             <Button
               variant="outline"
               onClick={() => decide('return')}
@@ -191,6 +238,22 @@ export default function DeanPAMS() {
             </Button>
           </div>
         </Card>
+      )}
+    </div>
+  );
+}
+
+function AchievementDisplay({ label, value }) {
+  const meta = value ? achievementLevels[value] : null;
+  return (
+    <div className="flex items-center justify-between gap-2 text-sm py-1">
+      <span className="text-gray-700">{label}</span>
+      {meta ? (
+        <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          {meta.label}
+        </span>
+      ) : (
+        <span className="text-xs text-gray-500">—</span>
       )}
     </div>
   );

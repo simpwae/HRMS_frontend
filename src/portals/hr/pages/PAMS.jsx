@@ -1,21 +1,10 @@
 import { useMemo, useState } from 'react';
-import {
-  ClipboardDocumentListIcon,
-  CheckCircleIcon,
-  ArrowUturnLeftIcon,
-  ArrowDownTrayIcon,
-} from '@heroicons/react/24/outline';
+import { CheckBadgeIcon, ArrowDownTrayIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import Card from '../../../components/Card';
 import Button from '../../../components/Button';
 import Badge from '../../../components/Badge';
 import { useDataStore } from '../../../state/data';
 import { toCSV, downloadCSV } from '../../../services/export';
-
-const statusVariant = {
-  'hod-confirmed': 'primary',
-  returned: 'warning',
-  'vc-approved': 'success',
-};
 
 const achievementLevels = {
   fully: { label: 'Fully Achieved', marks: 100 },
@@ -24,13 +13,12 @@ const achievementLevels = {
   not: { label: 'Not Achieved', marks: 0 },
 };
 
-export default function VCPAMS() {
-  const getPamsForVc = useDataStore((s) => s.getPamsForVc);
-  const vcApprovePams = useDataStore((s) => s.vcApprovePams);
+export default function HRPAMS() {
+  const getPamsForHr = useDataStore((s) => s.getPamsForHr);
+  const hrApprovePams = useDataStore((s) => s.hrApprovePams);
   const [selected, setSelected] = useState(null);
-  const [comment, setComment] = useState('');
 
-  const items = useMemo(() => getPamsForVc(), [getPamsForVc]);
+  const items = useMemo(() => getPamsForHr(), [getPamsForHr]);
 
   const exportCSV = () => {
     if (!items.length) return;
@@ -41,41 +29,31 @@ export default function VCPAMS() {
         department: p.department,
         faculty: p.faculty,
         category: p.category || 'faculty',
-        status: p.status,
         hodMeeting: p.hodReview?.meetingDate || '',
         deanMeeting: p.deanReview?.meetingDate || '',
       })),
-      [
-        'period',
-        'employee',
-        'department',
-        'faculty',
-        'category',
-        'status',
-        'hodMeeting',
-        'deanMeeting',
-      ],
+      ['period', 'employee', 'department', 'faculty', 'category', 'hodMeeting', 'deanMeeting'],
     );
-    downloadCSV('pams-vc-approvals.csv', csv);
+    downloadCSV('pams-hr-final.csv', csv);
   };
 
-  const decide = (id, action) => {
-    vcApprovePams(id, {
-      action,
-      comment: action === 'return' ? comment || 'Please revisit' : comment,
-    });
+  const approve = (id) => {
+    hrApprovePams(id, { action: 'approve', comment: 'Approved and finalized' });
     setSelected(null);
-    setComment('');
   };
+
+  const facultyItems = items.filter((p) => p.category === 'faculty');
+  const hodItems = items.filter((p) => p.category === 'hod');
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
-        <ClipboardDocumentListIcon className="w-6 h-6 text-gray-600" />
+        <CheckBadgeIcon className="w-6 h-6 text-gray-600" />
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">PAMS Approvals</h1>
+          <h1 className="text-2xl font-bold text-gray-900">PAMS Final Processing</h1>
           <p className="text-gray-600">
-            Review and approve Faculty & HOD submissions before sending to HR.
+            Review VC-approved submissions and finalize records. Faculty & HOD performance
+            evaluations.
           </p>
         </div>
       </div>
@@ -88,80 +66,86 @@ export default function VCPAMS() {
 
       {items.length === 0 ? (
         <Card>
-          <p className="text-sm text-gray-600">No submissions awaiting VC approval.</p>
+          <p className="text-sm text-gray-600">No submissions awaiting HR finalization.</p>
         </Card>
       ) : (
         <>
-          {items.filter((p) => p.category === 'faculty').length > 0 && (
+          {facultyItems.length > 0 && (
             <>
-              <h2 className="text-lg font-semibold text-gray-900">Faculty PAMS</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Faculty PAMS (VC Approved)</h2>
               <div className="grid gap-3">
-                {items
-                  .filter((p) => p.category === 'faculty')
-                  .map((p) => (
-                    <Card
-                      key={p.id}
-                      className={`cursor-pointer transition-all ${
-                        selected?.id === p.id ? 'ring-2 ring-blue-500' : ''
-                      }`}
-                      onClick={() => setSelected(p)}
-                    >
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                          <p className="font-semibold text-gray-900">
-                            {p.employeeName || p.employeeId}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {p.department} · {p.faculty}
-                          </p>
-                          <p className="text-xs text-gray-500">Period: {p.period}</p>
+                {facultyItems.map((p) => (
+                  <Card
+                    key={p.id}
+                    className={`cursor-pointer transition-all ${
+                      selected?.id === p.id ? 'ring-2 ring-green-500' : ''
+                    }`}
+                    onClick={() => setSelected(p)}
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-semibold text-gray-900">
+                          {p.employeeName || p.employeeId}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {p.department} · {p.faculty}
+                        </p>
+                        <p className="text-xs text-gray-500">Period: {p.period}</p>
+                        <div className="flex gap-3 mt-1 text-xs">
                           {p.hodReview?.meetingDate && (
-                            <p className="text-xs text-emerald-600">
-                              ✓ HOD meeting: {p.hodReview.meetingDate}
-                            </p>
+                            <span className="text-emerald-600">
+                              ✓ HOD: {p.hodReview.meetingDate}
+                            </span>
+                          )}
+                          {p.vcReview?.decidedAt && (
+                            <span className="text-emerald-600">✓ VC: {p.vcReview.decidedAt}</span>
                           )}
                         </div>
-                        <Badge variant="primary">pending</Badge>
                       </div>
-                    </Card>
-                  ))}
+                      <Badge variant="success">vc-approved</Badge>
+                    </div>
+                  </Card>
+                ))}
               </div>
             </>
           )}
 
-          {items.filter((p) => p.category === 'hod').length > 0 && (
+          {hodItems.length > 0 && (
             <>
-              <h2 className="text-lg font-semibold text-gray-900 mt-6">HOD PAMS</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mt-6">HOD PAMS (VC Approved)</h2>
               <div className="grid gap-3">
-                {items
-                  .filter((p) => p.category === 'hod')
-                  .map((p) => (
-                    <Card
-                      key={p.id}
-                      className={`cursor-pointer transition-all ${
-                        selected?.id === p.id ? 'ring-2 ring-blue-500' : ''
-                      }`}
-                      onClick={() => setSelected(p)}
-                    >
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                          <p className="font-semibold text-gray-900">
-                            {p.employeeName || p.employeeId}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {p.department} · {p.faculty}
-                          </p>
-                          <p className="text-xs text-gray-500">Period: {p.period}</p>
+                {hodItems.map((p) => (
+                  <Card
+                    key={p.id}
+                    className={`cursor-pointer transition-all ${
+                      selected?.id === p.id ? 'ring-2 ring-green-500' : ''
+                    }`}
+                    onClick={() => setSelected(p)}
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-semibold text-gray-900">
+                          {p.employeeName || p.employeeId}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {p.department} · {p.faculty}
+                        </p>
+                        <p className="text-xs text-gray-500">Period: {p.period}</p>
+                        <div className="flex gap-3 mt-1 text-xs">
                           {p.deanReview?.meetingDate && (
-                            <p className="text-xs text-emerald-600">
-                              ✓ Dean meeting: {p.deanReview.meetingDate}
-                            </p>
+                            <span className="text-emerald-600">
+                              ✓ Dean: {p.deanReview.meetingDate}
+                            </span>
+                          )}
+                          {p.vcReview?.decidedAt && (
+                            <span className="text-emerald-600">✓ VC: {p.vcReview.decidedAt}</span>
                           )}
                         </div>
-                        <Badge variant="primary">pending</Badge>
                       </div>
-                    </Card>
-                  ))}
+                      <Badge variant="success">vc-approved</Badge>
+                    </div>
+                  </Card>
+                ))}
               </div>
             </>
           )}
@@ -173,14 +157,30 @@ export default function VCPAMS() {
           <div className="flex items-center justify-between gap-2 mb-4">
             <div>
               <p className="font-semibold text-gray-900">
-                Reviewing: {selected.employeeName || selected.employeeId}
+                {selected.employeeName || selected.employeeId}
               </p>
               <p className="text-xs text-gray-500">
                 {selected.category === 'hod' ? 'HOD Performance' : 'Faculty Performance'} ·{' '}
                 {selected.period}
               </p>
             </div>
-            <Badge variant="primary">{selected.category}</Badge>
+            <Badge variant="success">Ready for HR</Badge>
+          </div>
+
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+            <p className="text-xs font-semibold text-green-900 mb-2 flex items-center gap-2">
+              <CheckBadgeIcon className="w-4 h-4" /> Approval Chain Complete
+            </p>
+            <div className="text-xs text-green-800 space-y-1">
+              <p>✓ VC Approved: {selected.vcReview?.decidedAt || 'Today'}</p>
+              {selected.category === 'faculty' && selected.hodReview?.meetingDate && (
+                <p>✓ HOD Meeting: {selected.hodReview.meetingDate}</p>
+              )}
+              {selected.category === 'hod' && selected.deanReview?.meetingDate && (
+                <p>✓ Dean Meeting: {selected.deanReview.meetingDate}</p>
+              )}
+              {selected.vcReview?.comment && <p>Note: {selected.vcReview.comment}</p>}
+            </div>
           </div>
 
           <div className="space-y-3 max-h-96 overflow-y-auto">
@@ -229,20 +229,6 @@ export default function VCPAMS() {
                     value={selected.serviceToCommunity}
                   />
                 </div>
-
-                {selected.hodReview && (
-                  <div className="border-t pt-3 bg-blue-50 p-3 rounded">
-                    <p className="text-sm font-semibold text-gray-900">HOD Review</p>
-                    <p className="text-xs text-gray-600 mt-1">
-                      Meeting: {selected.hodReview.meetingDate || 'Not scheduled'}
-                    </p>
-                    {selected.hodReview.comment && (
-                      <p className="text-xs text-gray-700 mt-1">
-                        Note: {selected.hodReview.comment}
-                      </p>
-                    )}
-                  </div>
-                )}
               </>
             ) : (
               <>
@@ -274,53 +260,19 @@ export default function VCPAMS() {
                   <p className="text-sm font-semibold text-gray-900 mb-2">Promotion & Tenure</p>
                   <AchievementDisplay label="Promotion & Tenure" value={selected.promotionTenure} />
                 </div>
-
-                {selected.deanReview && (
-                  <div className="border-t pt-3 bg-blue-50 p-3 rounded">
-                    <p className="text-sm font-semibold text-gray-900">Dean Review</p>
-                    <p className="text-xs text-gray-600 mt-1">
-                      Meeting: {selected.deanReview.meetingDate || 'Not scheduled'}
-                    </p>
-                    {selected.deanReview.comment && (
-                      <p className="text-xs text-gray-700 mt-1">
-                        Note: {selected.deanReview.comment}
-                      </p>
-                    )}
-                  </div>
-                )}
               </>
             )}
           </div>
 
-          <div className="border-t mt-4 pt-4">
-            <label className="text-sm font-medium text-gray-700 block mb-3">
-              Final Comments
-              <textarea
-                rows={2}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Optional approval or return comments"
-              />
-            </label>
-          </div>
-
-          <div className="flex flex-wrap justify-end gap-2 mt-4">
+          <div className="flex flex-wrap justify-end gap-2 mt-6 border-t pt-4">
             <Button variant="secondary" onClick={() => setSelected(null)}>
               Cancel
             </Button>
             <Button
-              variant="outline"
-              onClick={() => decide(selected.id, 'return')}
-              className="flex items-center gap-2"
+              onClick={() => approve(selected.id)}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
             >
-              <ArrowUturnLeftIcon className="w-4 h-4" /> Return
-            </Button>
-            <Button
-              onClick={() => decide(selected.id, 'approve')}
-              className="flex items-center gap-2"
-            >
-              <CheckCircleIcon className="w-4 h-4" /> Send to HR
+              <EnvelopeIcon className="w-4 h-4" /> Finalize & File
             </Button>
           </div>
         </Card>
@@ -335,7 +287,7 @@ function AchievementDisplay({ label, value }) {
     <div className="flex items-center justify-between gap-2 text-sm py-1">
       <span className="text-gray-700">{label}</span>
       {meta ? (
-        <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+        <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
           {meta.label}
         </span>
       ) : (

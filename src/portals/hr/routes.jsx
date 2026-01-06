@@ -20,6 +20,7 @@ import Payroll from './pages/Payroll';
 import Attendance from './pages/Attendance';
 import Recruitment from './pages/Recruitment';
 import Operational from './pages/Operational';
+import PAMS from './pages/PAMS';
 
 export const hrRoutes = (
   <Route
@@ -48,5 +49,6 @@ export const hrRoutes = (
     <Route path="policy-advisory" element={<PolicyAdvisory />} />
     <Route path="announcements" element={<Announcements />} />
     <Route path="settings" element={<Settings />} />
+    <Route path="pams" element={<PAMS />} />
   </Route>
 );

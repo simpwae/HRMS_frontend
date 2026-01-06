@@ -2686,7 +2686,6 @@ export const useDataStore = create(
         set((s) => ({
           pamsSubmissions: s.pamsSubmissions.map((p) => {
             if (p.id !== id) return p;
-            if (p.category === 'hod') return p; // HOD PAMS go to dean
             const status = decision.action === 'return' ? 'returned' : 'vc-approved';
             const vcReview = {
               status,
@@ -2722,6 +2721,35 @@ export const useDataStore = create(
         ),
 
       getPamsForVc: () => get().pamsSubmissions.filter((p) => p.status === 'hod-confirmed'),
+
+      getPamsForHr: () => get().pamsSubmissions.filter((p) => p.status === 'vc-approved'),
+
+      hrApprovePams: (id, decision) =>
+        set((s) => ({
+          pamsSubmissions: s.pamsSubmissions.map((p) => {
+            if (p.id !== id) return p;
+            const status = decision.action === 'return' ? 'returned' : 'hr-approved';
+            const hrReview = {
+              status,
+              comment: decision.comment || null,
+              processedAt: format(new Date(), 'yyyy-MM-dd'),
+            };
+            return {
+              ...p,
+              status,
+              hrReview,
+              history: [
+                ...p.history,
+                {
+                  action: status,
+                  by: decision.by || 'hr',
+                  at: hrReview.processedAt,
+                  note: decision.comment || null,
+                },
+              ],
+            };
+          }),
+        })),
 
       // Dean handles HOD PAMS
       getPamsForDean: (faculty) =>

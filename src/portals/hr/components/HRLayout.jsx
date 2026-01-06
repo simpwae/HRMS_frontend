@@ -18,6 +18,7 @@ import {
   BanknotesIcon,
   IdentificationIcon,
   CurrencyDollarIcon,
+  CheckBadgeIcon,
 } from '@heroicons/react/24/outline';
 
 const allNavItems = [
@@ -27,6 +28,12 @@ const allNavItems = [
     icon: HomeIcon,
     end: true,
     roles: ['hr', 'admin', 'dean', 'hod'],
+  },
+  {
+    path: '/hr/pams',
+    label: 'PAMS Final Processing',
+    icon: CheckBadgeIcon,
+    roles: ['hr', 'admin'],
   },
   { path: '/hr/employees', label: 'Employees', icon: UsersIcon, roles: ['hr', 'admin'] },
   { path: '/hr/attendance', label: 'Attendance Mgmt', icon: ClockIcon, roles: ['hr', 'admin'] },
