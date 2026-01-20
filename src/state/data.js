@@ -246,6 +246,16 @@ export const exitSurveyQuestions = [
   { id: 'feedback', question: 'Additional feedback or suggestions', type: 'textarea' },
 ];
 
+// Generate list of fall semesters (last 5 years + next year)
+export const getFallSemesters = () => {
+  const currentYear = new Date().getFullYear();
+  const semesters = [];
+  for (let i = 4; i >= -1; i--) {
+    semesters.push(`Fall ${currentYear - i}`);
+  }
+  return semesters;
+};
+
 // Initial mock data
 // Base employees seed; enriched below with lifecycle/salary history
 const baseEmployees = [
@@ -267,10 +277,92 @@ const baseEmployees = [
     cnic: '17301-1234567-1',
     address: '123 University Road, Peshawar',
     emergencyContact: '+92-321-9876543',
-    leaveBalance: { annual: 18, sick: 8, casual: 8, medical: 30 }, // added medical, aligned with allowance
+    leaveBalance: { annual: 18, sick: 8, casual: 8, medical: 30 },
     dependents: [],
     qualifications: [],
-    publications: [],
+    publications: [
+      {
+        id: 'pub-e1-1',
+        title: 'Machine Learning in Cloud Computing',
+        authors: 'Alice Smith, Dr. Ahmad Khan',
+        journalName: 'IEEE Transactions on Cloud Computing',
+        year: 2024,
+        type: 'journal',
+        hecCategory: 'W',
+        impactFactor: 4.2,
+      },
+      {
+        id: 'pub-e1-2',
+        title: 'Distributed Systems for Educational Platforms',
+        authors: 'Alice Smith',
+        journalName: 'Journal of Educational Computing',
+        year: 2023,
+        type: 'journal',
+        hecCategory: 'X',
+        impactFactor: 2.8,
+      },
+    ],
+    fypSupervised: [
+      {
+        id: 'fyp-e1-1',
+        period: 'Fall 2024',
+        projectTitle: 'AI-based Student Performance Prediction System',
+        studentNames: 'Ali Ahmed, Sara Khan',
+        status: 'completed',
+        numberOfStudents: '2',
+        awards: 'Best FYP Award at University level 2024',
+        technicalPapers: '1 paper accepted at IEEE ICET 2025',
+        productsDevloped: 'Mobile app and web dashboard deployed',
+        prototypeCompleted: 'Working prototype demonstrated; deployed in pilot phase',
+        otherInfo: 'Project sponsored by local IT company for further development',
+      },
+      {
+        id: 'fyp-e1-2',
+        period: 'Fall 2023',
+        projectTitle: 'Smart Campus Management System',
+        studentNames: 'Hassan Ali, Fatima Noor',
+        status: 'completed',
+        numberOfStudents: '2',
+      },
+    ],
+    thesisSupervised: [
+      {
+        id: 'thesis-e1-1',
+        period: 'Fall 2024',
+        level: 'MS',
+        thesisTitle: 'Deep Learning Approaches for Natural Language Processing',
+        studentName: 'Ahmed Raza',
+        status: 'ongoing',
+        conferencePapers: '1 paper accepted at ACL 2025',
+        researchPaperCategory: 'HEC W category, IF: 4.2',
+        presentStatus: 'Data analysis completed, currently writing Chapter 4',
+      },
+    ],
+    researchGrants: [
+      {
+        id: 'grant-e1-1',
+        period: 'Fall 2024',
+        grantName: 'HEC Research Grant for AI in Education',
+        fundingAgency: 'Higher Education Commission',
+        amount: 500000,
+        amountObtained: 300000,
+        approvedDate: '2024-11-15',
+        outcome: 'approved',
+        status: 'active',
+        notes: 'Phase 1 equipment purchase approved; Phase 2 under review',
+      },
+    ],
+    administrativeDuties: [
+      {
+        id: 'admin-e1-1',
+        dutyLevel: 'departmental',
+        dutyType: 'QEC',
+        assignedBy: 'HoD',
+        roleDescription: 'Led quality assurance and enhancement initiatives for the department',
+        creditHourExemption: true,
+        extraAllowance: false,
+      },
+    ],
   },
   {
     id: 'e2',
@@ -294,6 +386,10 @@ const baseEmployees = [
     dependents: [],
     qualifications: [],
     publications: [],
+    fypSupervised: [],
+    thesisSupervised: [],
+    researchGrants: [],
+    administrativeDuties: [],
   },
   {
     id: 'e3',
@@ -316,7 +412,41 @@ const baseEmployees = [
     leaveBalance: { annual: 15, sick: 8, casual: 5, medical: 30 },
     dependents: [],
     qualifications: [],
-    publications: [],
+    publications: [
+      {
+        id: 'pub-e3-1',
+        title: 'Organizational Leadership in Higher Education',
+        authors: 'Dr. Diana Prince, Prof. Muhammad Hassan',
+        journalName: 'Higher Education Review',
+        year: 2024,
+        type: 'journal',
+        hecCategory: 'X',
+        impactFactor: 3.1,
+      },
+      {
+        id: 'pub-e3-2',
+        title: 'Strategic Planning for Business Schools',
+        authors: 'Dr. Diana Prince',
+        journalName: 'Management Education Quarterly',
+        year: 2023,
+        type: 'journal',
+        hecCategory: 'Y',
+        impactFactor: 2.5,
+      },
+      {
+        id: 'pub-e3-3',
+        title: 'Faculty Development Programs',
+        authors: 'Dr. Diana Prince, Dr. Amina Khan',
+        journalName: 'International Journal of Education',
+        year: 2023,
+        type: 'conference',
+        hecCategory: 'X',
+      },
+    ],
+    fypSupervised: [],
+    thesisSupervised: [],
+    researchGrants: [],
+    administrativeDuties: [],
   },
   {
     id: 'e4',
@@ -675,6 +805,53 @@ const initialPamsSubmissions = [
       research: '2 W-category publications; 1 grant proposal submitted to HEC.',
       service: 'Seminar series coordination; curriculum review committee member.',
     },
+    fypSupervised: [
+      {
+        projectTitle: 'Smart Attendance System using Facial Recognition',
+        studentNames: 'Ahmed Khan, Sara Ali',
+        startDate: '2024-09-01',
+        completionDate: '2025-01-15',
+        outcomes: 'Project successfully deployed; won Best FYP Award',
+        marks: 'A (95/100)',
+      },
+    ],
+    thesisSupervised: [
+      {
+        thesisTitle: 'Machine Learning Models for Educational Analytics',
+        studentName: 'Muhammad Hassan',
+        department: 'CS',
+        specialization: 'AI/ML',
+        startDate: '2023-06-01',
+        expectedDate: '2025-06-30',
+        status: 'ongoing',
+      },
+    ],
+    researchPublications: [
+      {
+        publicationType: 'journal',
+        title: 'Machine Learning in Cloud Computing',
+        authors: 'Alice Smith, Dr. Ahmad Khan',
+        journalName: 'IEEE Transactions on Cloud Computing',
+        year: 2024,
+        volumeIssue: 'Vol. 12, No. 3',
+        impactFactor: '4.2',
+        hecCategory: 'W',
+        urlDoi: 'https://doi.org/10.1109/TCC.2024.123456',
+        notes: 'Indexed in Scopus, highly cited',
+      },
+    ],
+    researchGrants: [
+      {
+        grantName: 'AI in Education Research Initiative',
+        fundingAgency: 'Higher Education Commission (HEC)',
+        amount: '500000',
+        researchArea: 'Artificial Intelligence',
+        startDate: '2024-01-01',
+        endDate: '2025-12-31',
+        status: 'ongoing',
+        budgetBreakdown: 'Equipment: 60%, Stipend: 30%, Travel: 10%',
+      },
+    ],
     grievance: '',
     attachments: [{ id: generateId('doc'), name: 'Workload Form.pdf', type: 'workload', url: '#' }],
     submittedAt: format(subDays(today, 5), 'yyyy-MM-dd'),
@@ -684,13 +861,95 @@ const initialPamsSubmissions = [
   },
   {
     id: generateId('pams'),
+    category: 'faculty',
+    employeeId: 'e3',
+    employeeName: 'Dr. Diana Prince',
+    department: 'BBA',
+    faculty: 'Management',
+    period: '2025-Q3',
+    status: 'submitted',
+    workload: {
+      teachingLoad: '4 courses; MBA and BBA programs; mentoring 2 research scholars',
+      projectSupervision: '1 FYP team; 2 MS thesis supervision ongoing',
+      advisory: 'Advisor for BBA-20 batch (~60 students); career counseling',
+      admin: 'Department QEC chair; accreditation committee member',
+    },
+    rubric: {
+      teaching: 'Excellent SETE scores (4.5/5); updated curricula; student case studies',
+      research: '3 publications in international journals; 1 HEC research grant',
+      service: 'Industry partnerships; guest lectures; curriculum development',
+    },
+    fypSupervised: [
+      {
+        projectTitle: 'Business Intelligence System for Retail',
+        studentNames: 'Fatima Ahmed, Hassan Khan, Zainab Ali',
+        startDate: '2024-08-15',
+        completionDate: '2025-02-28',
+        outcomes: 'Deployed for client; potential commercialization',
+        marks: 'A+ (98/100)',
+      },
+    ],
+    thesisSupervised: [
+      {
+        thesisTitle: 'Organizational Change Management in Tech Companies',
+        studentName: 'Dr. Abdul Rahman',
+        department: 'BBA',
+        specialization: 'Management',
+        startDate: '2023-01-01',
+        expectedDate: '2025-12-31',
+        status: 'ongoing',
+      },
+      {
+        thesisTitle: 'Strategic Planning for Higher Education Institutions',
+        studentName: 'Ms. Ayesha Khan',
+        department: 'BBA',
+        specialization: 'Strategy',
+        startDate: '2023-09-01',
+        expectedDate: '2025-06-30',
+        status: 'completed',
+      },
+    ],
+    researchPublications: [
+      {
+        publicationType: 'journal',
+        title: 'Organizational Leadership in Higher Education',
+        authors: 'Dr. Diana Prince, Prof. Muhammad Hassan',
+        journalName: 'Higher Education Review',
+        year: 2024,
+        volumeIssue: 'Vol. 8, No. 1',
+        impactFactor: '3.1',
+        hecCategory: 'X',
+        urlDoi: 'https://doi.org/10.1234/HER.2024.112233',
+      },
+    ],
+    researchGrants: [
+      {
+        grantName: 'Leadership Development in Academic Institutions',
+        fundingAgency: 'World Bank',
+        amount: '750000',
+        researchArea: 'Education Management',
+        startDate: '2024-03-01',
+        endDate: '2026-02-28',
+        status: 'ongoing',
+        budgetBreakdown: 'Research Team: 40%, Materials: 35%, Travel: 25%',
+      },
+    ],
+    grievance: 'Need better research facilities and funding support',
+    attachments: [],
+    submittedAt: format(subDays(today, 3), 'yyyy-MM-dd'),
+    hodReview: { status: 'pending', comment: null, meetingDate: null, decidedAt: null },
+    vcReview: { status: 'pending', comment: null, decidedAt: null },
+    history: [{ action: 'submitted', by: 'employee', at: format(subDays(today, 3), 'yyyy-MM-dd') }],
+  },
+  {
+    id: generateId('pams'),
     category: 'hod',
     employeeId: 'u-hod',
     employeeName: 'Dr. Imran Shah',
     department: 'CS',
     faculty: 'Computing',
     period: '2025-Q3',
-    status: 'dean-review',
+    status: 'submitted',
     workload: {
       teachingLoad: 'Led department teaching plan; taught 1 course to CS-21.',
       projectSupervision: 'Oversaw FYP panel distribution; co-supervised 1 project.',
@@ -702,14 +961,156 @@ const initialPamsSubmissions = [
       research: '1 grant submitted; 1 journal paper under review.',
       service: 'Chaired curriculum committee; external outreach to industry.',
     },
+    fypSupervised: [
+      {
+        projectTitle: 'IoT-Based Smart Campus System',
+        studentNames: 'Bilal Ahmed, Noor Fatima',
+        startDate: '2024-07-01',
+        completionDate: '2025-01-31',
+        outcomes: 'Deployed on campus; recognized by management',
+        marks: 'A (90/100)',
+      },
+    ],
+    thesisSupervised: [
+      {
+        thesisTitle: 'Cybersecurity in Educational Networks',
+        studentName: 'Eng. Adnan Khan',
+        department: 'CS',
+        specialization: 'Cybersecurity',
+        startDate: '2023-06-01',
+        expectedDate: '2025-12-31',
+        status: 'ongoing',
+      },
+    ],
+    researchPublications: [
+      {
+        publicationType: 'journal',
+        title: 'Secure Systems in Cloud Education',
+        authors: 'Dr. Imran Shah, Dr. Ali Raza',
+        journalName: 'IEEE Access',
+        year: 2024,
+        volumeIssue: 'Vol. 12',
+        impactFactor: '3.9',
+        hecCategory: 'W',
+        urlDoi: 'https://doi.org/10.1109/ACCESS.2024.789012',
+      },
+    ],
+    researchGrants: [
+      {
+        grantName: 'Cybersecurity Research Initiative',
+        fundingAgency: 'HEC',
+        amount: '400000',
+        researchArea: 'Cybersecurity',
+        startDate: '2024-06-01',
+        endDate: '2026-05-31',
+        status: 'ongoing',
+        budgetBreakdown: 'Equipment: 50%, Personnel: 40%, Travel: 10%',
+      },
+    ],
     grievance: '',
     attachments: [],
     submittedAt: format(subDays(today, 6), 'yyyy-MM-dd'),
-    hodReview: null,
     deanReview: { status: 'pending', comment: null, meetingDate: null, decidedAt: null },
     history: [{ action: 'submitted', by: 'hod', at: format(subDays(today, 6), 'yyyy-MM-dd') }],
   },
 ];
+
+// Additional dummy submissions for testing full flow
+initialPamsSubmissions.push(
+  {
+    id: generateId('pams'),
+    category: 'faculty',
+    employeeId: 'e2',
+    employeeName: 'Muhammad Ahmed',
+    department: 'CS',
+    faculty: 'Computing',
+    period: `${new Date().getFullYear()}-Q1`,
+    status: 'hod-confirmed',
+    workload: { teachingLoad: '2 courses, 1 lab', admin: 'Exam invigilation' },
+    rubric: { teaching: 'Strong delivery', research: '1 paper', service: 'Committee member' },
+    submittedAt: format(subDays(today, 2), 'yyyy-MM-dd'),
+    hodReview: {
+      status: 'hod-confirmed',
+      meetingDate: format(today, 'yyyy-MM-dd'),
+      comment: 'Good performance',
+      decidedAt: format(today, 'yyyy-MM-dd'),
+      assessment: {
+        teaching: 'fully',
+        research: 'largely',
+        fypSupervision: 'partially',
+        service: 'largely',
+      },
+    },
+    vcReview: { status: 'pending', comment: null, decidedAt: null },
+    history: [
+      { action: 'submitted', by: 'employee', at: format(subDays(today, 2), 'yyyy-MM-dd') },
+      { action: 'hod-confirmed', by: 'hod', at: format(today, 'yyyy-MM-dd') },
+    ],
+  },
+  {
+    id: generateId('pams'),
+    category: 'hod',
+    employeeId: 'hod-02',
+    employeeName: 'Dr. Sana Farooq',
+    department: 'BBA',
+    faculty: 'Management',
+    period: `${new Date().getFullYear()}-Q1`,
+    status: 'dean-confirmed',
+    workload: { teachingLoad: 'Led teaching planning; taught MBA course', admin: 'Accreditation' },
+    rubric: {
+      teaching: 'Leadership in teaching',
+      research: 'Grant pipeline',
+      service: 'Industry outreach',
+    },
+    submittedAt: format(subDays(today, 4), 'yyyy-MM-dd'),
+    deanReview: {
+      status: 'dean-confirmed',
+      meetingDate: format(today, 'yyyy-MM-dd'),
+      comment: 'Department in good standing',
+      decidedAt: format(today, 'yyyy-MM-dd'),
+      assessment: {
+        teaching: 'largely',
+        research: 'fully',
+        fypSupervision: 'largely',
+        service: 'fully',
+      },
+    },
+    vcReview: { status: 'pending', comment: null, decidedAt: null },
+    history: [
+      { action: 'submitted', by: 'hod', at: format(subDays(today, 4), 'yyyy-MM-dd') },
+      { action: 'dean-confirmed', by: 'dean', at: format(today, 'yyyy-MM-dd') },
+    ],
+  },
+  {
+    id: generateId('pams'),
+    category: 'faculty',
+    employeeId: 'e4',
+    employeeName: 'Zara Khan',
+    department: 'EE',
+    faculty: 'Engineering',
+    period: `${new Date().getFullYear()}-Q1`,
+    status: 'vc-approved',
+    workload: { teachingLoad: '3 courses', admin: 'Lab coordinator' },
+    rubric: { teaching: 'Excellent', research: '2 papers', service: 'Community projects' },
+    submittedAt: format(subDays(today, 7), 'yyyy-MM-dd'),
+    hodReview: {
+      status: 'hod-confirmed',
+      meetingDate: format(subDays(today, 5), 'yyyy-MM-dd'),
+      comment: 'Solid teaching outcomes',
+      decidedAt: format(subDays(today, 5), 'yyyy-MM-dd'),
+    },
+    vcReview: {
+      status: 'vc-approved',
+      comment: 'Proceed to HR',
+      decidedAt: format(subDays(today, 1), 'yyyy-MM-dd'),
+    },
+    history: [
+      { action: 'submitted', by: 'employee', at: format(subDays(today, 7), 'yyyy-MM-dd') },
+      { action: 'hod-confirmed', by: 'hod', at: format(subDays(today, 5), 'yyyy-MM-dd') },
+      { action: 'vc-approved', by: 'vc', at: format(subDays(today, 1), 'yyyy-MM-dd') },
+    ],
+  },
+);
 
 // Former employees / alumni
 const initialExEmployees = [
@@ -1197,6 +1598,229 @@ export const useDataStore = create(
       getEmployeesByDepartment: (dept) => get().employees.filter((e) => e.department === dept),
 
       getEmployeesByFaculty: (faculty) => get().employees.filter((e) => e.faculty === faculty),
+
+      // Get employee publications
+      getEmployeePublications: (employeeId) => {
+        const employee = get().employees.find((e) => e.id === employeeId);
+        return employee?.publications || [];
+      },
+
+      // Get employee FYP supervisions
+      getEmployeeFYPSupervisions: (employeeId) => {
+        const employee = get().employees.find((e) => e.id === employeeId);
+        return employee?.fypSupervised || [];
+      },
+
+      // Get employee thesis supervisions
+      getEmployeeThesisSupervisions: (employeeId) => {
+        const employee = get().employees.find((e) => e.id === employeeId);
+        return employee?.thesisSupervised || [];
+      },
+
+      // Get employee research grants
+      getEmployeeResearchGrants: (employeeId) => {
+        const employee = get().employees.find((e) => e.id === employeeId);
+        return employee?.researchGrants || [];
+      },
+
+      // Add FYP supervision
+      addEmployeeFYP: (employeeId, fypData) =>
+        set((state) => ({
+          employees: state.employees.map((emp) =>
+            emp.id === employeeId
+              ? {
+                  ...emp,
+                  fypSupervised: [
+                    ...(emp.fypSupervised || []),
+                    { ...fypData, id: generateId('fyp') },
+                  ],
+                }
+              : emp,
+          ),
+        })),
+
+      // Update FYP supervision
+      updateEmployeeFYP: (employeeId, fypId, updates) =>
+        set((state) => ({
+          employees: state.employees.map((emp) =>
+            emp.id === employeeId
+              ? {
+                  ...emp,
+                  fypSupervised: emp.fypSupervised.map((f) =>
+                    f.id === fypId ? { ...f, ...updates } : f,
+                  ),
+                }
+              : emp,
+          ),
+        })),
+
+      // Delete FYP supervision
+      deleteEmployeeFYP: (employeeId, fypId) =>
+        set((state) => ({
+          employees: state.employees.map((emp) =>
+            emp.id === employeeId
+              ? {
+                  ...emp,
+                  fypSupervised: emp.fypSupervised.filter((f) => f.id !== fypId),
+                }
+              : emp,
+          ),
+        })),
+
+      // Add thesis supervision
+      addEmployeeThesis: (employeeId, thesisData) =>
+        set((state) => ({
+          employees: state.employees.map((emp) =>
+            emp.id === employeeId
+              ? {
+                  ...emp,
+                  thesisSupervised: [
+                    ...(emp.thesisSupervised || []),
+                    { ...thesisData, id: generateId('thesis') },
+                  ],
+                }
+              : emp,
+          ),
+        })),
+
+      // Update thesis supervision
+      updateEmployeeThesis: (employeeId, thesisId, updates) =>
+        set((state) => ({
+          employees: state.employees.map((emp) =>
+            emp.id === employeeId
+              ? {
+                  ...emp,
+                  thesisSupervised: emp.thesisSupervised.map((t) =>
+                    t.id === thesisId ? { ...t, ...updates } : t,
+                  ),
+                }
+              : emp,
+          ),
+        })),
+
+      // Delete thesis supervision
+      deleteEmployeeThesis: (employeeId, thesisId) =>
+        set((state) => ({
+          employees: state.employees.map((emp) =>
+            emp.id === employeeId
+              ? {
+                  ...emp,
+                  thesisSupervised: emp.thesisSupervised.filter((t) => t.id !== thesisId),
+                }
+              : emp,
+          ),
+        })),
+
+      // Add research grant
+      addEmployeeGrant: (employeeId, grantData) =>
+        set((state) => ({
+          employees: state.employees.map((emp) =>
+            emp.id === employeeId
+              ? {
+                  ...emp,
+                  researchGrants: [
+                    ...(emp.researchGrants || []),
+                    { ...grantData, id: generateId('grant') },
+                  ],
+                }
+              : emp,
+          ),
+        })),
+
+      // Update research grant
+      updateEmployeeGrant: (employeeId, grantId, updates) =>
+        set((state) => ({
+          employees: state.employees.map((emp) =>
+            emp.id === employeeId
+              ? {
+                  ...emp,
+                  researchGrants: emp.researchGrants.map((g) =>
+                    g.id === grantId ? { ...g, ...updates } : g,
+                  ),
+                }
+              : emp,
+          ),
+        })),
+
+      // Delete research grant
+      deleteEmployeeGrant: (employeeId, grantId) =>
+        set((state) => ({
+          employees: state.employees.map((emp) =>
+            emp.id === employeeId
+              ? {
+                  ...emp,
+                  researchGrants: emp.researchGrants.filter((g) => g.id !== grantId),
+                }
+              : emp,
+          ),
+        })),
+
+      // Get employee admin duties
+      getEmployeeAdminDuties: (employeeId) => {
+        const employee = get().employees.find((e) => e.id === employeeId);
+        return employee?.administrativeDuties || [];
+      },
+
+      // Add admin duty
+      addEmployeeAdminDuty: (employeeId, dutyData) =>
+        set((state) => ({
+          employees: state.employees.map((emp) =>
+            emp.id === employeeId
+              ? {
+                  ...emp,
+                  administrativeDuties: [
+                    ...(emp.administrativeDuties || []),
+                    { ...dutyData, id: generateId('admin-duty') },
+                  ],
+                }
+              : emp,
+          ),
+        })),
+
+      // Update admin duty
+      updateEmployeeAdminDuty: (employeeId, dutyId, updates) =>
+        set((state) => ({
+          employees: state.employees.map((emp) =>
+            emp.id === employeeId
+              ? {
+                  ...emp,
+                  administrativeDuties: emp.administrativeDuties.map((d) =>
+                    d.id === dutyId ? { ...d, ...updates } : d,
+                  ),
+                }
+              : emp,
+          ),
+        })),
+
+      // Delete admin duty
+      deleteEmployeeAdminDuty: (employeeId, dutyId) =>
+        set((state) => ({
+          employees: state.employees.map((emp) =>
+            emp.id === employeeId
+              ? {
+                  ...emp,
+                  administrativeDuties: emp.administrativeDuties.filter((d) => d.id !== dutyId),
+                }
+              : emp,
+          ),
+        })),
+
+      // Get attendance summary for employee (past month)
+      getEmployeeAttendanceSummary: (employeeId) => {
+        const attendance = get().attendance.filter((a) => a.employeeId === employeeId);
+        const present = attendance.filter((a) => a.status === 'Present').length;
+        const late = attendance.filter((a) => a.status === 'Late').length;
+        const absent = attendance.filter((a) => a.status === 'Absent').length;
+        return { present, late, absent, total: attendance.length };
+      },
+
+      // Get all attendance records for employee
+      getEmployeeAttendance: (employeeId) =>
+        get().attendance.filter((a) => a.employeeId === employeeId),
+
+      // Get PAMS for specific employee
+      getPamsForEmployee: (employeeId) =>
+        get().pamsSubmissions.filter((p) => p.employeeId === employeeId),
 
       // Attendance actions
       clockIn: (employeeId) => {
@@ -2647,31 +3271,26 @@ export const useDataStore = create(
           pamsSubmissions: s.pamsSubmissions.map((p) => {
             if (p.id !== id) return p;
             if (p.category === 'hod') return p; // HOD self PAMS handled by dean
-            const status = decision.action === 'confirm' ? 'hod-confirmed' : 'returned';
             const entry = {
               ...p,
-              status,
+              status: 'hod-confirmed',
               hodReview: {
-                status,
+                status: 'hod-confirmed',
                 comment: decision.comment || null,
                 meetingDate: decision.meetingDate || null,
                 decidedAt: format(new Date(), 'yyyy-MM-dd'),
+                assessment: decision.assessment || null,
               },
-              followUpMeeting:
-                decision.action === 'confirm'
-                  ? {
-                      topic: 'Department performance follow-up',
-                      scheduledAt:
-                        decision.followUpDate ||
-                        decision.meetingDate ||
-                        format(new Date(), 'yyyy-MM-dd'),
-                      status: 'pending',
-                    }
-                  : p.followUpMeeting,
+              followUpMeeting: {
+                topic: 'Department performance follow-up',
+                scheduledAt:
+                  decision.followUpDate || decision.meetingDate || format(new Date(), 'yyyy-MM-dd'),
+                status: 'pending',
+              },
               history: [
                 ...p.history,
                 {
-                  action: decision.action === 'confirm' ? 'hod-confirmed' : 'returned',
+                  action: 'hod-confirmed',
                   by: decision.by || 'hod',
                   at: format(new Date(), 'yyyy-MM-dd'),
                   note: decision.comment || null,
@@ -2686,20 +3305,19 @@ export const useDataStore = create(
         set((s) => ({
           pamsSubmissions: s.pamsSubmissions.map((p) => {
             if (p.id !== id) return p;
-            const status = decision.action === 'return' ? 'returned' : 'vc-approved';
             const vcReview = {
-              status,
+              status: 'vc-approved',
               comment: decision.comment || null,
               decidedAt: format(new Date(), 'yyyy-MM-dd'),
             };
             return {
               ...p,
-              status,
+              status: 'vc-approved',
               vcReview,
               history: [
                 ...p.history,
                 {
-                  action: status,
+                  action: 'vc-approved',
                   by: decision.by || 'vc',
                   at: vcReview.decidedAt,
                   note: decision.comment || null,
@@ -2717,10 +3335,11 @@ export const useDataStore = create(
           (p) =>
             p.category === 'faculty' &&
             p.department === department &&
-            ['submitted', 'returned'].includes(p.status),
+            ['submitted'].includes(p.status),
         ),
 
-      getPamsForVc: () => get().pamsSubmissions.filter((p) => p.status === 'hod-confirmed'),
+      getPamsForVc: () =>
+        get().pamsSubmissions.filter((p) => ['hod-confirmed', 'dean-confirmed'].includes(p.status)),
 
       getPamsForHr: () => get().pamsSubmissions.filter((p) => p.status === 'vc-approved'),
 
@@ -2728,20 +3347,19 @@ export const useDataStore = create(
         set((s) => ({
           pamsSubmissions: s.pamsSubmissions.map((p) => {
             if (p.id !== id) return p;
-            const status = decision.action === 'return' ? 'returned' : 'hr-approved';
             const hrReview = {
-              status,
+              status: 'hr-final',
               comment: decision.comment || null,
               processedAt: format(new Date(), 'yyyy-MM-dd'),
             };
             return {
               ...p,
-              status,
+              status: 'hr-final',
               hrReview,
               history: [
                 ...p.history,
                 {
-                  action: status,
+                  action: 'hr-final',
                   by: decision.by || 'hr',
                   at: hrReview.processedAt,
                   note: decision.comment || null,
@@ -2754,10 +3372,7 @@ export const useDataStore = create(
       // Dean handles HOD PAMS
       getPamsForDean: (faculty) =>
         get().pamsSubmissions.filter(
-          (p) =>
-            p.category === 'hod' &&
-            p.faculty === faculty &&
-            ['dean-review', 'returned'].includes(p.status),
+          (p) => p.category === 'hod' && p.faculty === faculty && ['submitted'].includes(p.status),
         ),
 
       deanReviewPams: (id, decision) =>
@@ -2765,30 +3380,26 @@ export const useDataStore = create(
           pamsSubmissions: s.pamsSubmissions.map((p) => {
             if (p.id !== id) return p;
             if (p.category !== 'hod') return p;
-            const status = decision.action === 'return' ? 'returned' : 'dean-confirmed';
             const deanReview = {
-              status,
+              status: 'dean-confirmed',
               comment: decision.comment || null,
               meetingDate: decision.meetingDate || null,
               decidedAt: format(new Date(), 'yyyy-MM-dd'),
+              assessment: decision.assessment || null,
             };
             return {
               ...p,
-              status,
+              status: 'dean-confirmed',
               deanReview,
-              followUpMeeting:
-                decision.action === 'confirm'
-                  ? {
-                      topic: 'Department performance review with Dean',
-                      scheduledAt:
-                        decision.followUpDate || decision.meetingDate || deanReview.decidedAt,
-                      status: 'pending',
-                    }
-                  : p.followUpMeeting,
+              followUpMeeting: {
+                topic: 'Department performance review with Dean',
+                scheduledAt: decision.followUpDate || decision.meetingDate || deanReview.decidedAt,
+                status: 'pending',
+              },
               history: [
                 ...p.history,
                 {
-                  action: status,
+                  action: 'dean-confirmed',
                   by: decision.by || 'dean',
                   at: deanReview.decidedAt,
                   note: decision.comment || null,

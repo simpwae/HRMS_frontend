@@ -25,9 +25,7 @@ const statusVariant = {
 const initialFacultyForm = (period) => ({
   period,
   workload: {
-    teachingLoad: '',
-    projectSupervision: '',
-    advisory: '',
+     teachingLoad: '',
     admin: '',
   },
   rubric: {
@@ -43,8 +41,6 @@ const initialHODForm = (period) => ({
   period,
   workload: {
     teachingLoad: '',
-    projectSupervision: '',
-    advisory: '',
     admin: '',
   },
   rubric: {
@@ -84,6 +80,11 @@ export default function EmployeePAMS() {
     [employee, getPamsForEmployee],
   );
 
+  const hasSubmittedThisPeriod = useMemo(
+    () => submissions.some((s) => s.period === form.period && s.status === 'submitted'),
+    [submissions, form.period],
+  );
+
   const updateField = (path, value) => {
     setForm((prev) => {
       const parts = path.split('.');
@@ -101,6 +102,22 @@ export default function EmployeePAMS() {
       setMessage('No employee profile found.');
       return;
     }
+
+    // Check if already submitted
+    if (hasSubmittedThisPeriod) {
+      setMessage('Form already submitted for this period. No modifications allowed.');
+      return;
+    }
+
+    // Show confirmation popup
+    const confirmed = window.confirm(
+      `Are you sure you want to submit your ${isHOD ? 'HOD' : 'Faculty'} PAMS for period ${form.period}?\n\nOnce submitted, this form cannot be modified. Please review all information before confirming.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
     setSubmitting(true);
     submitPamsForm({
       employeeId: employee.id,
@@ -188,6 +205,14 @@ export default function EmployeePAMS() {
             isHOD={isHOD}
           />
 
+          {hasSubmittedThisPeriod && (
+            <div className="bg-orange-50 border border-orange-300 rounded-lg p-3">
+              <p className="text-sm text-orange-700 font-medium">
+                ⚠️ Form already submitted for period {form.period}. No modifications allowed.
+              </p>
+            </div>
+          )}
+
           {message && (
             <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
               <p className="text-sm text-emerald-700">{message}</p>
@@ -197,7 +222,7 @@ export default function EmployeePAMS() {
           <div className="flex items-center justify-end gap-2">
             <Button
               type="submit"
-              disabled={submitting || !employee}
+              disabled={submitting || !employee || hasSubmittedThisPeriod}
               className="flex items-center gap-2"
             >
               {submitting ? (
@@ -248,7 +273,7 @@ export default function EmployeePAMS() {
 function PAMSForm({ form, updateField, activeTab, setActiveTab, isHOD }) {
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <TabsList>
+      <TabsList className="flex flex-wrap">
         <TabsTrigger value="workload">Workload Description</TabsTrigger>
         <TabsTrigger value="rubric">Performance Rubric</TabsTrigger>
         <TabsTrigger value="attachments">Attachments</TabsTrigger>
@@ -257,13 +282,13 @@ function PAMSForm({ form, updateField, activeTab, setActiveTab, isHOD }) {
       <TabsContent value="workload" className="space-y-4 mt-4">
         <p className="text-sm text-gray-600 mb-3">
           {isHOD
-            ? 'As HOD, describe your departmental leadership workload including teaching, supervision, and administrative responsibilities.'
-            : 'Describe your workload during this performance period. Be specific about courses taught, projects supervised, and administrative duties.'}
+            ? 'As HOD, describe your departmental leadership workload including teaching and administrative responsibilities.'
+            : 'Describe your workload during this performance period. Be specific about courses taught and administrative duties. Note: FYP supervisions, thesis supervisions, and research grants are managed in your Profile section.'}
         </p>
         <label className="text-sm font-medium text-gray-700 block">
-          Teaching Load
+          Teaching Load *
           <textarea
-            rows={3}
+            rows={4}
             className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={form.workload.teachingLoad}
             onChange={(e) => updateField('workload.teachingLoad', e.target.value)}
@@ -272,43 +297,14 @@ function PAMSForm({ form, updateField, activeTab, setActiveTab, isHOD }) {
                 ? 'e.g., Led department teaching plan; taught 1 course to CS-21'
                 : 'e.g., 3 courses across 2 sections; labs included with prep and grading'
             }
-          />
-        </label>
-
-        <label className="text-sm font-medium text-gray-700 block">
-          Project Supervision (FYP/MS/PhD)
-          <textarea
-            rows={3}
-            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={form.workload.projectSupervision}
-            onChange={(e) => updateField('workload.projectSupervision', e.target.value)}
-            placeholder={
-              isHOD
-                ? 'e.g., Oversaw FYP panel distribution; co-supervised 1 project'
-                : 'e.g., 2 FYP teams supervised; co-supervision with clear role split'
-            }
-          />
-        </label>
-
-        <label className="text-sm font-medium text-gray-700 block">
-          Student Advisory
-          <textarea
-            rows={2}
-            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={form.workload.advisory}
-            onChange={(e) => updateField('workload.advisory', e.target.value)}
-            placeholder={
-              isHOD
-                ? 'e.g., Advised faculty on curriculum mapping; weekly office hours'
-                : 'e.g., Advisor for CS-21 batch (~50 students)'
-            }
+            required
           />
         </label>
 
         <label className="text-sm font-medium text-gray-700 block">
           Administrative Duties
           <textarea
-            rows={3}
+            rows={4}
             className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={form.workload.admin}
             onChange={(e) => updateField('workload.admin', e.target.value)}

@@ -10,6 +10,7 @@ import Badge from '../../../components/Badge';
 import FileUpload from '../../../components/FileUpload';
 import { useAuthStore } from '../../../state/auth';
 import { useDataStore } from '../../../state/data';
+import AppraisalForm from './AppraisalForm';
 
 const statusVariant = {
   'dean-review': 'info',
@@ -27,6 +28,7 @@ const achievementLevels = {
 export default function DeanPAMS() {
   const { user } = useAuthStore();
   const getPamsForDean = useDataStore((s) => s.getPamsForDean);
+  const getEmployeesByFaculty = useDataStore((s) => s.getEmployeesByFaculty);
   const deanReviewPams = useDataStore((s) => s.deanReviewPams);
   const updatePamsSubmission = useDataStore((s) => s.updatePamsSubmission);
 
@@ -35,11 +37,24 @@ export default function DeanPAMS() {
     [getPamsForDean, user],
   );
 
+  // Get all HODs/Department heads in the faculty for manual selection
+  const facultyHODs = useMemo(
+    () =>
+      user?.faculty
+        ? getEmployeesByFaculty(user.faculty).filter(
+            (e) => e.role === 'HOD' || e.designation === 'HOD',
+          )
+        : [],
+    [getEmployeesByFaculty, user],
+  );
+
   const [selected, setSelected] = useState(null);
+  const [showAppraisalForm, setShowAppraisalForm] = useState(false);
   const [comment, setComment] = useState('');
   const [meetingDate, setMeetingDate] = useState('');
   const [followUpDate, setFollowUpDate] = useState('');
   const [attachments, setAttachments] = useState([]);
+  const [selectedHOD, setSelectedHOD] = useState('');
 
   const select = (p) => {
     setSelected(p);
@@ -47,6 +62,47 @@ export default function DeanPAMS() {
     setMeetingDate('');
     setFollowUpDate('');
     setAttachments(p.attachments || []);
+  };
+
+  const handleSelectHOD = (hodId) => {
+    const hod = facultyHODs.find((h) => h.id === hodId);
+    if (hod) {
+      // Try to find existing PAMS submission for this HOD
+      const existingPams = items.find((p) => p.employeeId === hodId);
+
+      if (existingPams) {
+        // Use the existing PAMS submission
+        setSelected(existingPams);
+      } else {
+        // If no PAMS exists, create a temporary one
+        setSelected({
+          id: hod.id,
+          employeeId: hod.id,
+          employeeName: hod.name,
+          period: new Date().getFullYear().toString(),
+          workload: {
+            teachingLoad: `${hod.name}'s departmental workload`,
+            projectSupervision: '',
+            advisory: '',
+            admin: '',
+          },
+          teachingAssessment: {},
+          fypSupervision: undefined,
+          msPhDSupervision: undefined,
+          researchPublications: undefined,
+          researchFunding: undefined,
+          administrativeDuties: undefined,
+          serviceToCommunity: undefined,
+          grievance: '',
+          attachments: [],
+          status: 'pending',
+        });
+      }
+      setComment('');
+      setMeetingDate('');
+      setFollowUpDate('');
+      setAttachments([]);
+    }
   };
 
   const saveAttachments = () => {
@@ -85,6 +141,27 @@ export default function DeanPAMS() {
       </div>
 
       <Card>
+        <div className="mb-4">
+          <label className="text-sm font-medium text-gray-700 block mb-2">
+            Select HOD to Appraise
+            <select
+              value={selectedHOD}
+              onChange={(e) => handleSelectHOD(e.target.value)}
+              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">-- Select a HOD to appraise --</option>
+              {facultyHODs.map((hod) => (
+                <option key={hod.id} value={hod.id}>
+                  {hod.name} ({hod.department})
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <div className="flex items-center gap-2 mb-4 pt-3 border-t">
+          <p className="font-semibold text-gray-900">HOD Submissions Awaiting Review</p>
+        </div>
         {items.length === 0 ? (
           <p className="text-sm text-gray-600">No HOD submissions awaiting review.</p>
         ) : (
@@ -227,16 +304,24 @@ export default function DeanPAMS() {
               Cancel
             </Button>
             <Button
-              variant="outline"
-              onClick={() => decide('return')}
+              onClick={() => setShowAppraisalForm(!showAppraisalForm)}
               className="flex items-center gap-2"
             >
-              <ArrowUturnLeftIcon className="w-4 h-4" /> Return
-            </Button>
-            <Button onClick={() => decide('confirm')} className="flex items-center gap-2">
-              <CheckCircleIcon className="w-4 h-4" /> Confirm after meeting
+              <CheckCircleIcon className="w-4 h-4" />
+              {showAppraisalForm ? 'Hide' : 'Show'} Appraisal Form
             </Button>
           </div>
+
+          {showAppraisalForm && (
+            <div className="mt-6 pt-6 border-t">
+              <AppraisalForm
+                pamsId={selected.id}
+                employeeId={selected.employeeId}
+                pamsData={selected}
+                onClose={() => setShowAppraisalForm(false)}
+              />
+            </div>
+          )}
         </Card>
       )}
     </div>

@@ -300,7 +300,7 @@ export default function VCPAMS() {
                 className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
-                placeholder="Optional approval or return comments"
+                placeholder="Optional approval comments"
               />
             </label>
           </div>
@@ -308,13 +308,6 @@ export default function VCPAMS() {
           <div className="flex flex-wrap justify-end gap-2 mt-4">
             <Button variant="secondary" onClick={() => setSelected(null)}>
               Cancel
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => decide(selected.id, 'return')}
-              className="flex items-center gap-2"
-            >
-              <ArrowUturnLeftIcon className="w-4 h-4" /> Return
             </Button>
             <Button
               onClick={() => decide(selected.id, 'approve')}

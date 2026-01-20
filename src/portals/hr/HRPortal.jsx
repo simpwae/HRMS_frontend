@@ -19,6 +19,7 @@ import Payroll from './pages/Payroll';
 import Attendance from './pages/Attendance';
 import Recruitment from './pages/Recruitment';
 import Operational from './pages/Operational';
+import PAMS from './pages/PAMS';
 
 export default function HRPortal() {
   return (
@@ -34,6 +35,7 @@ export default function HRPortal() {
         <Route path="payroll" element={<Payroll />} />
         <Route path="recruitment" element={<Recruitment />} />
         <Route path="operational" element={<Operational />} />
+        <Route path="pams" element={<PAMS />} />
         <Route path="resignations" element={<Resignations />} />
         <Route path="ex-employees" element={<ExEmployees />} />
         <Route path="profile-requests" element={<ProfileRequests />} />
