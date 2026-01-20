@@ -19,13 +19,14 @@ const statusVariant = {
   'hod-confirmed': 'primary',
   'dean-confirmed': 'success',
   'vc-approved': 'success',
+  'hr-final': 'success',
   pending: 'secondary',
 };
 
 const initialFacultyForm = (period) => ({
   period,
   workload: {
-     teachingLoad: '',
+    teachingLoad: '',
     admin: '',
   },
   rubric: {
@@ -65,8 +66,9 @@ export default function EmployeePAMS() {
   );
 
   const now = new Date();
-  const quarter = Math.floor(now.getMonth() / 3) + 1;
-  const defaultPeriod = `${now.getFullYear()}-Q${quarter}`;
+  // Align period format with the rest of the app (e.g., "Fall 2026")
+  const semester = 'Fall';
+  const defaultPeriod = `${semester} ${now.getFullYear()}`;
 
   const [activeTab, setActiveTab] = useState('workload');
   const [form, setForm] = useState(() =>
@@ -176,7 +178,7 @@ export default function EmployeePAMS() {
                 className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
                 value={form.period}
                 onChange={(e) => updateField('period', e.target.value)}
-                placeholder="2026-Q1"
+                placeholder="Fall 2026"
               />
             </label>
             <label className="text-sm text-gray-700 font-medium">
@@ -258,8 +260,28 @@ export default function EmployeePAMS() {
                     {p.category === 'hod' ? 'HOD Evaluation' : 'Faculty Evaluation'}
                   </p>
                 </div>
-                <div className="flex items-center justify-between md:justify-end gap-2">
+                <div className="flex flex-col items-end justify-center gap-1">
                   <Badge variant={statusVariant[p.status] || 'secondary'}>{p.status}</Badge>
+                  <p className="text-[11px] text-gray-500">
+                    {(() => {
+                      switch (p.status) {
+                        case 'submitted':
+                          return p.category === 'hod'
+                            ? 'Next: Dean will schedule appraisal'
+                            : 'Next: HOD will schedule appraisal';
+                        case 'hod-confirmed':
+                          return 'Next: VC approval';
+                        case 'dean-confirmed':
+                          return 'Next: VC approval';
+                        case 'vc-approved':
+                          return 'Next: HR finalization';
+                        case 'hr-final':
+                          return 'Completed';
+                        default:
+                          return '';
+                      }
+                    })()}
+                  </p>
                 </div>
               </div>
             ))}

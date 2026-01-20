@@ -1110,6 +1110,488 @@ initialPamsSubmissions.push(
       { action: 'vc-approved', by: 'vc', at: format(subDays(today, 1), 'yyyy-MM-dd') },
     ],
   },
+  // Additional Faculty PAMS - submitted (for HOD review)
+  {
+    id: 'pams-e5',
+    category: 'faculty',
+    employeeId: 'e5',
+    employeeName: 'Dr. Sarah Ahmed',
+    department: 'CS',
+    faculty: 'Computing',
+    period: 'Fall 2026',
+    status: 'submitted',
+    workload: {
+      teachingLoad: 'CS-101 (3 cr) Fall\nCS-301 (3 cr) Fall\nCS-401 (2 cr) Fall',
+      admin: 'Lab Coordinator\nCurriculum Committee Member',
+    },
+    rubric: {
+      teaching: 'Delivered 8 credit hours\nDeveloped new lab exercises\nStudent evaluations: 4.3/5',
+      research:
+        '2 journal papers published\n1 conference paper accepted\nSupervising 3 graduate students',
+      service: 'Department quality assurance\nUniversity open house coordinator',
+    },
+    submittedAt: format(subDays(today, 3), 'yyyy-MM-dd'),
+    hodReview: null,
+    deanReview: null,
+    vcReview: null,
+    hrReview: null,
+    history: [
+      {
+        action: 'submitted',
+        by: 'e5',
+        at: format(subDays(today, 3), 'yyyy-MM-dd'),
+        note: 'Initial submission',
+      },
+    ],
+  },
+  {
+    id: 'pams-e6',
+    category: 'faculty',
+    employeeId: 'e6',
+    employeeName: 'Prof. Jamil Hassan',
+    department: 'BBA',
+    faculty: 'Management',
+    period: 'Fall 2026',
+    status: 'submitted',
+    workload: {
+      teachingLoad: 'BBA-201 (3 cr) Fall\nBBA-401 (3 cr) Fall',
+      admin: 'Student advisor\nInternship coordinator',
+    },
+    rubric: {
+      teaching:
+        'Delivered 6 credit hours\nIntegrated industry case studies\nStudent feedback: 4.5/5',
+      research: '1 journal paper submitted\nWorking paper in progress',
+      service: 'Career fair organizer\nIndustry liaison',
+    },
+    submittedAt: format(subDays(today, 2), 'yyyy-MM-dd'),
+    hodReview: null,
+    deanReview: null,
+    vcReview: null,
+    hrReview: null,
+    history: [
+      {
+        action: 'submitted',
+        by: 'e6',
+        at: format(subDays(today, 2), 'yyyy-MM-dd'),
+        note: 'Initial submission',
+      },
+    ],
+  },
+  // Faculty PAMS - hod-confirmed (for VC review)
+  {
+    id: 'pams-e7',
+    category: 'faculty',
+    employeeId: 'e7',
+    employeeName: 'Dr. Ayesha Malik',
+    department: 'EE',
+    faculty: 'Engineering',
+    period: 'Fall 2026',
+    status: 'hod-confirmed',
+    workload: {
+      teachingLoad: 'EE-201 (3 cr) Fall\nEE-301 (4 cr) Fall',
+      admin: 'Lab equipment manager\nSafety committee member',
+    },
+    rubric: {
+      teaching: 'Delivered 7 credit hours\nUpdated lab manuals\nStudent evaluations: 4.4/5',
+      research: '1 journal paper published\n2 conference papers\nPI on HEC grant',
+      service: 'IEEE chapter secretary\nWorkshop organizer',
+    },
+    submittedAt: format(subDays(today, 10), 'yyyy-MM-dd'),
+    hodReview: {
+      status: 'hod-confirmed',
+      meetingDate: format(subDays(today, 6), 'yyyy-MM-dd'),
+      comment: 'Excellent performance in teaching and research. Grant funding secured.',
+      decidedAt: format(subDays(today, 6), 'yyyy-MM-dd'),
+      assessment: {
+        teaching: 'Excellent',
+        research: 'Very Good',
+        fyp: 'Good',
+        service: 'Very Good',
+      },
+    },
+    deanReview: null,
+    vcReview: null,
+    hrReview: null,
+    history: [
+      {
+        action: 'submitted',
+        by: 'e7',
+        at: format(subDays(today, 10), 'yyyy-MM-dd'),
+        note: 'Initial submission',
+      },
+      {
+        action: 'hod-confirmed',
+        by: 'hod-03',
+        at: format(subDays(today, 6), 'yyyy-MM-dd'),
+        note: 'Confirmed after appraisal meeting',
+      },
+    ],
+  },
+  {
+    id: 'pams-e8',
+    category: 'faculty',
+    employeeId: 'e8',
+    employeeName: 'Mr. Bilal Iqbal',
+    department: 'BBA',
+    faculty: 'Management',
+    period: 'Fall 2026',
+    status: 'hod-confirmed',
+    workload: {
+      teachingLoad: 'BBA-101 (3 cr) Fall\nBBA-201 (3 cr) Fall\nBBA-301 (2 cr) Fall',
+      admin: 'Exam coordinator\nStudent counselor',
+    },
+    rubric: {
+      teaching: 'Delivered 8 credit hours\nActive learning methods\nStudent feedback: 4.2/5',
+      research: 'Working on case study publication\n1 book chapter submitted',
+      service: 'Alumni networking\nGuest speaker coordinator',
+    },
+    submittedAt: format(subDays(today, 9), 'yyyy-MM-dd'),
+    hodReview: {
+      status: 'hod-confirmed',
+      meetingDate: format(subDays(today, 5), 'yyyy-MM-dd'),
+      comment: 'Strong teaching performance. Encouraged to pursue more research output.',
+      decidedAt: format(subDays(today, 5), 'yyyy-MM-dd'),
+      assessment: {
+        teaching: 'Very Good',
+        research: 'Satisfactory',
+        fyp: 'Good',
+        service: 'Very Good',
+      },
+    },
+    deanReview: null,
+    vcReview: null,
+    hrReview: null,
+    history: [
+      {
+        action: 'submitted',
+        by: 'e8',
+        at: format(subDays(today, 9), 'yyyy-MM-dd'),
+        note: 'Initial submission',
+      },
+      {
+        action: 'hod-confirmed',
+        by: 'hod-bba',
+        at: format(subDays(today, 5), 'yyyy-MM-dd'),
+        note: 'Confirmed after appraisal meeting',
+      },
+    ],
+  },
+  // HOD PAMS - submitted (for Dean review)
+  {
+    id: 'pams-hod-03',
+    category: 'hod',
+    employeeId: 'hod-03',
+    employeeName: 'Dr. Tariq Mehmood',
+    department: 'EE',
+    faculty: 'Engineering',
+    period: 'Fall 2026',
+    status: 'submitted',
+    workload: {
+      teachingLoad: 'EE-401 (3 cr) Fall',
+      admin:
+        'HOD of Electrical Engineering\nDepartment budget management\nFaculty recruitment committee',
+    },
+    rubric: {
+      teaching: 'Delivered 3 credit hours\nMentored junior faculty\nGraduate thesis supervision',
+      research: '3 journal papers published\n1 patent filed\nCo-PI on international project',
+      service: 'PEC accreditation lead\nEngineering faculty board member\nIndustry advisory panel',
+    },
+    submittedAt: format(subDays(today, 4), 'yyyy-MM-dd'),
+    hodReview: null,
+    deanReview: null,
+    vcReview: null,
+    hrReview: null,
+    history: [
+      {
+        action: 'submitted',
+        by: 'hod-03',
+        at: format(subDays(today, 4), 'yyyy-MM-dd'),
+        note: 'Initial submission',
+      },
+    ],
+  },
+  {
+    id: 'pams-hod-04',
+    category: 'hod',
+    employeeId: 'hod-04',
+    employeeName: 'Dr. Rabia Noor',
+    department: 'ME',
+    faculty: 'Engineering',
+    period: 'Fall 2026',
+    status: 'submitted',
+    workload: {
+      teachingLoad: 'ME-301 (4 cr) Fall',
+      admin:
+        'HOD of Mechanical Engineering\nLab expansion project lead\nCurriculum revision committee chair',
+    },
+    rubric: {
+      teaching:
+        'Delivered 4 credit hours\nNew lab equipment procurement\nFaculty development workshops',
+      research: '2 journal papers\n1 conference paper\nResearch lab establishment',
+      service:
+        'ABET accreditation coordinator\nUniversity senate member\nWomen in engineering initiative',
+    },
+    submittedAt: format(subDays(today, 3), 'yyyy-MM-dd'),
+    hodReview: null,
+    deanReview: null,
+    vcReview: null,
+    hrReview: null,
+    history: [
+      {
+        action: 'submitted',
+        by: 'hod-04',
+        at: format(subDays(today, 3), 'yyyy-MM-dd'),
+        note: 'Initial submission',
+      },
+    ],
+  },
+  // HOD PAMS - dean-confirmed (for VC review)
+  {
+    id: 'pams-hod-05',
+    category: 'hod',
+    employeeId: 'hod-05',
+    employeeName: 'Dr. Ahmed Raza',
+    department: 'Physics',
+    faculty: 'Sciences',
+    period: 'Fall 2026',
+    status: 'dean-confirmed',
+    workload: {
+      teachingLoad: 'PHY-301 (3 cr) Fall\nPHY-501 (3 cr) Fall',
+      admin: 'HOD of Physics\nResearch center coordinator\nGraduate program director',
+    },
+    rubric: {
+      teaching:
+        'Delivered 6 credit hours\nGraduate curriculum development\nPhD supervision (4 students)',
+      research: '4 journal papers (2 Q1)\n3 conference presentations\nPI on two HEC grants',
+      service: 'HEC evaluation panel\nJournal editorial board\nScience faculty strategic planning',
+    },
+    submittedAt: format(subDays(today, 12), 'yyyy-MM-dd'),
+    hodReview: null,
+    deanReview: {
+      status: 'dean-confirmed',
+      meetingDate: format(subDays(today, 7), 'yyyy-MM-dd'),
+      comment:
+        'Outstanding leadership and research productivity. Key contributor to graduate program growth.',
+      decidedAt: format(subDays(today, 7), 'yyyy-MM-dd'),
+      assessment: {
+        teaching: 'Excellent',
+        research: 'Excellent',
+        fyp: 'Excellent',
+        service: 'Excellent',
+      },
+    },
+    vcReview: null,
+    hrReview: null,
+    history: [
+      {
+        action: 'submitted',
+        by: 'hod-05',
+        at: format(subDays(today, 12), 'yyyy-MM-dd'),
+        note: 'Initial submission',
+      },
+      {
+        action: 'dean-confirmed',
+        by: 'dean-sciences',
+        at: format(subDays(today, 7), 'yyyy-MM-dd'),
+        note: 'Confirmed after appraisal meeting',
+      },
+    ],
+  },
+  // VC Approved PAMS (for HR finalization)
+  {
+    id: 'pams-e9',
+    category: 'faculty',
+    employeeId: 'e9',
+    employeeName: 'Dr. Nadia Siddiqui',
+    department: 'Chemistry',
+    faculty: 'Sciences',
+    period: 'Fall 2026',
+    status: 'vc-approved',
+    workload: {
+      teachingLoad: 'CHEM-201 (3 cr) Fall\nCHEM-401 (4 cr) Fall',
+      admin: 'Lab safety officer\nChemistry society advisor',
+    },
+    rubric: {
+      teaching:
+        'Delivered 7 credit hours\nLab modernization initiatives\nStudent evaluations: 4.6/5',
+      research: '3 journal papers\n1 book chapter\nCo-PI on collaborative research',
+      service: 'Safety committee chair\nChemistry conference organizer',
+    },
+    submittedAt: format(subDays(today, 15), 'yyyy-MM-dd'),
+    hodReview: {
+      status: 'hod-confirmed',
+      meetingDate: format(subDays(today, 11), 'yyyy-MM-dd'),
+      comment: 'Excellent teaching and safety leadership.',
+      decidedAt: format(subDays(today, 11), 'yyyy-MM-dd'),
+      assessment: {
+        teaching: 'Excellent',
+        research: 'Very Good',
+        fyp: 'Very Good',
+        service: 'Excellent',
+      },
+    },
+    deanReview: null,
+    vcReview: {
+      status: 'vc-approved',
+      comment: 'Approved for HR processing. Strong overall performance.',
+      decidedAt: format(subDays(today, 3), 'yyyy-MM-dd'),
+    },
+    hrReview: null,
+    history: [
+      {
+        action: 'submitted',
+        by: 'e9',
+        at: format(subDays(today, 15), 'yyyy-MM-dd'),
+        note: 'Initial submission',
+      },
+      {
+        action: 'hod-confirmed',
+        by: 'hod-chem',
+        at: format(subDays(today, 11), 'yyyy-MM-dd'),
+        note: 'Confirmed after appraisal meeting',
+      },
+      {
+        action: 'vc-approved',
+        by: 'vc',
+        at: format(subDays(today, 3), 'yyyy-MM-dd'),
+        note: 'Approved by Vice Chancellor',
+      },
+    ],
+  },
+  {
+    id: 'pams-hod-06',
+    category: 'hod',
+    employeeId: 'hod-06',
+    employeeName: 'Dr. Khalid Mahmood',
+    department: 'Chemistry',
+    faculty: 'Sciences',
+    period: 'Fall 2026',
+    status: 'vc-approved',
+    workload: {
+      teachingLoad: 'CHEM-501 (3 cr) Fall',
+      admin: 'HOD of Chemistry\nResearch lab director\nFaculty hiring committee',
+    },
+    rubric: {
+      teaching:
+        'Delivered 3 credit hours\nPhD supervision (5 students)\nNew graduate courses developed',
+      research:
+        '5 journal papers (3 Q1)\nPrincipal Investigator on 2 grants\nInternational collaborations established',
+      service:
+        'HEC recognized research supervisor\nEditorial board member (2 journals)\nUniversity research council',
+    },
+    submittedAt: format(subDays(today, 14), 'yyyy-MM-dd'),
+    hodReview: null,
+    deanReview: {
+      status: 'dean-confirmed',
+      meetingDate: format(subDays(today, 9), 'yyyy-MM-dd'),
+      comment:
+        'Exceptional research leadership. Department research output significantly increased.',
+      decidedAt: format(subDays(today, 9), 'yyyy-MM-dd'),
+      assessment: {
+        teaching: 'Very Good',
+        research: 'Excellent',
+        fyp: 'Excellent',
+        service: 'Excellent',
+      },
+    },
+    vcReview: {
+      status: 'vc-approved',
+      comment: 'Approved for HR. Outstanding contribution to research excellence.',
+      decidedAt: format(subDays(today, 3), 'yyyy-MM-dd'),
+    },
+    hrReview: null,
+    history: [
+      {
+        action: 'submitted',
+        by: 'hod-06',
+        at: format(subDays(today, 14), 'yyyy-MM-dd'),
+        note: 'Initial submission',
+      },
+      {
+        action: 'dean-confirmed',
+        by: 'dean-sciences',
+        at: format(subDays(today, 9), 'yyyy-MM-dd'),
+        note: 'Confirmed after appraisal meeting',
+      },
+      {
+        action: 'vc-approved',
+        by: 'vc',
+        at: format(subDays(today, 3), 'yyyy-MM-dd'),
+        note: 'Approved by Vice Chancellor',
+      },
+    ],
+  },
+  // HR Final (completed cycle)
+  {
+    id: 'pams-e10',
+    category: 'faculty',
+    employeeId: 'e10',
+    employeeName: 'Prof. Usman Ali',
+    department: 'Physics',
+    faculty: 'Sciences',
+    period: 'Fall 2026',
+    status: 'hr-final',
+    workload: {
+      teachingLoad: 'PHY-201 (3 cr) Fall\nPHY-401 (3 cr) Fall',
+      admin: 'Senior faculty mentor\nQuality assurance coordinator',
+    },
+    rubric: {
+      teaching:
+        'Delivered 6 credit hours\nExcellent student feedback: 4.7/5\nCourse material innovation',
+      research: '2 journal papers\nConference keynote speaker\nResearch group established',
+      service: 'Accreditation committee\nFaculty senate representative',
+    },
+    submittedAt: format(subDays(today, 20), 'yyyy-MM-dd'),
+    hodReview: {
+      status: 'hod-confirmed',
+      meetingDate: format(subDays(today, 16), 'yyyy-MM-dd'),
+      comment: 'Consistently strong performance. Valuable department asset.',
+      decidedAt: format(subDays(today, 16), 'yyyy-MM-dd'),
+      assessment: {
+        teaching: 'Excellent',
+        research: 'Very Good',
+        fyp: 'Very Good',
+        service: 'Very Good',
+      },
+    },
+    deanReview: null,
+    vcReview: {
+      status: 'vc-approved',
+      comment: 'Approved. Well-rounded faculty member.',
+      decidedAt: format(subDays(today, 10), 'yyyy-MM-dd'),
+    },
+    hrReview: {
+      status: 'hr-final',
+      comment: 'Performance appraisal cycle completed. Records updated.',
+      processedAt: format(subDays(today, 5), 'yyyy-MM-dd'),
+    },
+    history: [
+      {
+        action: 'submitted',
+        by: 'e10',
+        at: format(subDays(today, 20), 'yyyy-MM-dd'),
+        note: 'Initial submission',
+      },
+      {
+        action: 'hod-confirmed',
+        by: 'hod-05',
+        at: format(subDays(today, 16), 'yyyy-MM-dd'),
+        note: 'Confirmed after appraisal meeting',
+      },
+      {
+        action: 'vc-approved',
+        by: 'vc',
+        at: format(subDays(today, 10), 'yyyy-MM-dd'),
+        note: 'Approved by Vice Chancellor',
+      },
+      {
+        action: 'hr-final',
+        by: 'hr-01',
+        at: format(subDays(today, 5), 'yyyy-MM-dd'),
+        note: 'Finalized and archived',
+      },
+    ],
+  },
 );
 
 // Former employees / alumni

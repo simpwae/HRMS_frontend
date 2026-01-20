@@ -78,6 +78,12 @@ export default function DeanAppraisalForm({ pamsId, employeeId, pamsData, onClos
     fypSupervision: 'largely',
     service: 'largely',
   });
+  const [assessmentComments, setAssessmentComments] = useState({
+    teaching: '',
+    research: '',
+    fypSupervision: '',
+    service: '',
+  });
   const [meetingDate, setMeetingDate] = useState('');
   const [feedback, setFeedback] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -122,6 +128,7 @@ export default function DeanAppraisalForm({ pamsId, employeeId, pamsData, onClos
         comment: feedback,
         decidedAt: new Date().toISOString().split('T')[0],
         assessment,
+        assessmentComments,
       },
       status: 'dean-confirmed',
     });
@@ -424,34 +431,163 @@ export default function DeanAppraisalForm({ pamsId, employeeId, pamsData, onClos
 
         {/* Achievement Assessment */}
         <Card>
-          <h3 className="font-semibold text-gray-900 mb-4">Performance Assessment</h3>
+          <h3 className="font-semibold text-gray-900 mb-4">HOD Performance Assessment & Review</h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Review what the HOD submitted and their HOD review, then mark your assessment
+          </p>
           <div className="space-y-6">
-            {categories.map((cat) => (
-              <div key={cat.key} className="border rounded-lg p-4 bg-gray-50">
-                <p className="text-sm font-semibold text-gray-900 mb-3">{cat.label}</p>
-                <div className="space-y-2">
-                  {Object.values(achievementLevels).map((level) => (
-                    <label
-                      key={level.value}
-                      className="flex items-center gap-3 p-3 rounded border bg-white hover:bg-gray-50 cursor-pointer transition"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={assessment[cat.key] === level.value}
-                        onChange={() => setAssessment({ ...assessment, [cat.key]: level.value })}
-                        className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                      />
-                      <div className="flex-1 flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700">{level.label}</span>
-                        <span className="text-sm font-semibold text-indigo-600">
-                          {level.marks} marks
-                        </span>
-                      </div>
-                    </label>
-                  ))}
+            {categories.map((cat) => {
+              // Map category keys to HOD submission data
+              const categoryData = {
+                teaching: {
+                  submitted: pams.rubric?.teaching,
+                  hodAssessment: pams.hodReview?.assessment?.teaching,
+                  hodComments: pams.hodReview?.assessmentComments?.teaching,
+                  profile: (
+                    <div className="space-y-1">
+                      {publications.length > 0 && (
+                        <p className="text-xs text-gray-600">
+                          📚 {publications.length} publication(s)
+                        </p>
+                      )}
+                      {pams.workload?.teachingLoad && (
+                        <p className="text-xs text-gray-600">
+                          📖 Workload: {pams.workload.teachingLoad}
+                        </p>
+                      )}
+                    </div>
+                  ),
+                },
+                research: {
+                  submitted: pams.rubric?.research,
+                  hodAssessment: pams.hodReview?.assessment?.research,
+                  hodComments: pams.hodReview?.assessmentComments?.research,
+                  profile: (
+                    <div className="space-y-1">
+                      {publications.length > 0 && (
+                        <p className="text-xs text-gray-600">
+                          📄 {publications.length} publication(s) this period
+                        </p>
+                      )}
+                      {researchGrants.length > 0 && (
+                        <p className="text-xs text-gray-600">
+                          💰 {researchGrants.length} research grant(s)
+                        </p>
+                      )}
+                    </div>
+                  ),
+                },
+                fypSupervision: {
+                  submitted: pams.workload?.projectSupervision,
+                  hodAssessment: pams.hodReview?.assessment?.fypSupervision,
+                  hodComments: pams.hodReview?.assessmentComments?.fypSupervision,
+                  profile: (
+                    <div className="space-y-1">
+                      {fypSupervisions.length > 0 && (
+                        <p className="text-xs text-gray-600">
+                          🎓 {fypSupervisions.length} FYP(s) supervised
+                        </p>
+                      )}
+                      {thesisSupervisions.length > 0 && (
+                        <p className="text-xs text-gray-600">
+                          📖 {thesisSupervisions.length} thesis/theses supervised
+                        </p>
+                      )}
+                    </div>
+                  ),
+                },
+                service: {
+                  submitted: pams.rubric?.service,
+                  hodAssessment: pams.hodReview?.assessment?.service,
+                  hodComments: pams.hodReview?.assessmentComments?.service,
+                  profile: (
+                    <div className="space-y-1">
+                      {pams.workload?.admin && (
+                        <p className="text-xs text-gray-600">⚙️ Admin: {pams.workload.admin}</p>
+                      )}
+                      {adminDuties.length > 0 && (
+                        <p className="text-xs text-gray-600">
+                          📋 {adminDuties.length} admin duty/duties
+                        </p>
+                      )}
+                    </div>
+                  ),
+                },
+              };
+
+              const data = categoryData[cat.key] || {};
+              const hodLevel = data.hodAssessment ? achievementLevels[data.hodAssessment] : null;
+
+              return (
+                <div key={cat.key} className="border-2 rounded-lg p-4 bg-white">
+                  <p className="text-base font-bold text-gray-900 mb-3">{cat.label}</p>
+
+                  {/* What HOD Submitted */}
+                  <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded">
+                    <p className="text-xs font-semibold text-blue-900 mb-1">HOD Submission:</p>
+                    <p className="text-sm text-gray-800 whitespace-pre-line">
+                      {data.submitted || 'No submission provided'}
+                    </p>
+                    {data.profile && (
+                      <div className="mt-2 pt-2 border-t border-blue-200">{data.profile}</div>
+                    )}
+                  </div>
+
+                  {/* HOD's Assessment */}
+                  {pams.hodReview && (
+                    <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded">
+                      <p className="text-xs font-semibold text-green-900 mb-1">HOD Assessment:</p>
+                      {hodLevel && (
+                        <p className="text-sm font-semibold text-gray-800">
+                          {hodLevel.label} ({hodLevel.marks} marks)
+                        </p>
+                      )}
+                      {data.hodComments && (
+                        <p className="text-sm text-gray-700 mt-1">{data.hodComments}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Dean Assessment Selection */}
+                  <p className="text-sm font-semibold text-gray-700 mb-2">Your Assessment:</p>
+                  <div className="space-y-2 mb-3">
+                    {Object.values(achievementLevels).map((level) => (
+                      <label
+                        key={level.value}
+                        className="flex items-center gap-3 p-3 rounded border bg-gray-50 hover:bg-gray-100 cursor-pointer transition"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={assessment[cat.key] === level.value}
+                          onChange={() => setAssessment({ ...assessment, [cat.key]: level.value })}
+                          className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                        />
+                        <div className="flex-1 flex items-center justify-between">
+                          <span className="text-sm font-medium text-gray-700">{level.label}</span>
+                          <span className="text-sm font-semibold text-indigo-600">
+                            {level.marks} marks
+                          </span>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+
+                  {/* Comments */}
+                  <label className="text-sm font-medium text-gray-700 block">
+                    Your Comments:
+                    <textarea
+                      rows={2}
+                      className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      value={assessmentComments[cat.key]}
+                      onChange={(e) =>
+                        setAssessmentComments({ ...assessmentComments, [cat.key]: e.target.value })
+                      }
+                      placeholder={`Add specific feedback about ${cat.label.toLowerCase()} performance...`}
+                    />
+                  </label>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Card>
 

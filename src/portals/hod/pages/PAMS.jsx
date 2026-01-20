@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useEffect } from 'react';
 import {
   ClipboardDocumentCheckIcon,
   UserGroupIcon,
@@ -44,7 +45,7 @@ export default function HODPAMS() {
   const [editRubric, setEditRubric] = useState({ teaching: '', research: '', service: '' });
 
   // Sync editable fields when selection changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (selected) {
       setEditWorkload({
         teachingLoad: selected.workload?.teachingLoad || '',
