@@ -437,78 +437,122 @@ export default function DeanAppraisalForm({ pamsId, employeeId, pamsData, onClos
           </p>
           <div className="space-y-6">
             {categories.map((cat) => {
-              // Map category keys to HOD submission data
+              // Map category keys to HOD profile data (since rubric was removed from employee submission)
               const categoryData = {
                 teaching: {
-                  submitted: pams.rubric?.teaching,
+                  submitted: pams.workload?.teachingLoad || 'Not provided',
                   hodAssessment: pams.hodReview?.assessment?.teaching,
                   hodComments: pams.hodReview?.assessmentComments?.teaching,
                   profile: (
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {publications.length > 0 && (
-                        <p className="text-xs text-gray-600">
-                          📚 {publications.length} publication(s)
-                        </p>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-600">
+                            Publications: {publications.length}
+                          </p>
+                          {publications.slice(0, 2).map((pub, idx) => (
+                            <p key={idx} className="text-xs text-gray-600 ml-2">
+                              • {pub.title}
+                            </p>
+                          ))}
+                        </div>
                       )}
-                      {pams.workload?.teachingLoad && (
-                        <p className="text-xs text-gray-600">
-                          📖 Workload: {pams.workload.teachingLoad}
-                        </p>
-                      )}
+                      <p className="text-xs text-gray-600">
+                        📖 Workload: {pams.workload?.teachingLoad || 'Not specified'}
+                      </p>
                     </div>
                   ),
                 },
                 research: {
-                  submitted: pams.rubric?.research,
+                  submitted:
+                    publications.length > 0
+                      ? `${publications.length} publication(s) this period`
+                      : 'No publications',
                   hodAssessment: pams.hodReview?.assessment?.research,
                   hodComments: pams.hodReview?.assessmentComments?.research,
                   profile: (
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {publications.length > 0 && (
-                        <p className="text-xs text-gray-600">
-                          📄 {publications.length} publication(s) this period
-                        </p>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-600">Publications:</p>
+                          {publications.map((pub, idx) => (
+                            <p key={idx} className="text-xs text-gray-600 ml-2">
+                              • {pub.title} ({pub.year})
+                            </p>
+                          ))}
+                        </div>
                       )}
                       {researchGrants.length > 0 && (
-                        <p className="text-xs text-gray-600">
-                          💰 {researchGrants.length} research grant(s)
-                        </p>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-600">
+                            Research Grants: {researchGrants.length}
+                          </p>
+                          {researchGrants.map((grant, idx) => (
+                            <p key={idx} className="text-xs text-gray-600 ml-2">
+                              • {grant.grantName} - PKR {Number(grant.amount).toLocaleString()}
+                            </p>
+                          ))}
+                        </div>
                       )}
                     </div>
                   ),
                 },
                 fypSupervision: {
-                  submitted: pams.workload?.projectSupervision,
+                  submitted:
+                    fypSupervisions.length > 0
+                      ? `${fypSupervisions.length} FYP(s) supervised`
+                      : 'No FYPs',
                   hodAssessment: pams.hodReview?.assessment?.fypSupervision,
                   hodComments: pams.hodReview?.assessmentComments?.fypSupervision,
                   profile: (
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {fypSupervisions.length > 0 && (
-                        <p className="text-xs text-gray-600">
-                          🎓 {fypSupervisions.length} FYP(s) supervised
-                        </p>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-600">
+                            FYPs Supervised: {fypSupervisions.length}
+                          </p>
+                          {fypSupervisions.map((fyp, idx) => (
+                            <p key={idx} className="text-xs text-gray-600 ml-2">
+                              • {fyp.projectTitle} ({fyp.numberOfStudents || 1} student(s))
+                            </p>
+                          ))}
+                        </div>
                       )}
                       {thesisSupervisions.length > 0 && (
-                        <p className="text-xs text-gray-600">
-                          📖 {thesisSupervisions.length} thesis/theses supervised
-                        </p>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-600">
+                            Theses Supervised: {thesisSupervisions.length}
+                          </p>
+                          {thesisSupervisions.map((thesis, idx) => (
+                            <p key={idx} className="text-xs text-gray-600 ml-2">
+                              • {thesis.thesisTitle} ({thesis.level}) - {thesis.studentName}
+                            </p>
+                          ))}
+                        </div>
                       )}
                     </div>
                   ),
                 },
                 service: {
-                  submitted: pams.rubric?.service,
+                  submitted: pams.workload?.admin || 'Not provided',
                   hodAssessment: pams.hodReview?.assessment?.service,
                   hodComments: pams.hodReview?.assessmentComments?.service,
                   profile: (
-                    <div className="space-y-1">
-                      {pams.workload?.admin && (
-                        <p className="text-xs text-gray-600">⚙️ Admin: {pams.workload.admin}</p>
-                      )}
+                    <div className="space-y-2">
+                      <p className="text-xs text-gray-600">
+                        ⚙️ Admin: {pams.workload?.admin || 'Not specified'}
+                      </p>
                       {adminDuties.length > 0 && (
-                        <p className="text-xs text-gray-600">
-                          📋 {adminDuties.length} admin duty/duties
-                        </p>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-600">
+                            Admin Duties: {adminDuties.length}
+                          </p>
+                          {adminDuties.slice(0, 3).map((duty, idx) => (
+                            <p key={idx} className="text-xs text-gray-600 ml-2">
+                              • {duty.dutyType} ({duty.dutyLevel})
+                            </p>
+                          ))}
+                        </div>
                       )}
                     </div>
                   ),

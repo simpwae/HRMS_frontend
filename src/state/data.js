@@ -2559,6 +2559,19 @@ export const useDataStore = create(
         get().notifications.filter((n) => !n.read && (n.userId === userId || n.userId === 'all'))
           .length,
 
+      addNotification: (notification) =>
+        set((s) => ({
+          notifications: [
+            {
+              id: generateId('notif'),
+              read: false,
+              createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+              ...notification,
+            },
+            ...s.notifications,
+          ],
+        })),
+
       // ============ EMAIL NOTIFICATION FRAMEWORK (ARCHITECTURE) ============
       // This framework is designed for backend integration - frontend structure is ready
       //
@@ -2726,51 +2739,89 @@ export const useDataStore = create(
                 ? promotion.proposedSalary
                 : employee?.salaryBase;
 
-          set((s) => ({
-            employees: s.employees.map((e) => {
-              if (e.id !== promotion.employeeId) return e;
+          set((s) => {
+            const hodRecipientId =
+              s.employees.find((e) => e.role === 'hod' && e.department === employee?.department)
+                ?.id || 'hod-' + employee?.department;
+            const financeRecipientId =
+              s.employees.find((e) => e.role === 'finance')?.id || 'finance-role';
 
-              const withSalary = appendSalaryHistory(e, {
-                amount: newSalary,
-                type: 'promotion',
-                reason: `Promotion to ${promotion.requestedDesignation}`,
-                effectiveDate,
-                reference: promotion.id,
-                createdBy: meta.decidedBy || 'HR',
-              });
+            return {
+              employees: s.employees.map((e) => {
+                if (e.id !== promotion.employeeId) return e;
 
-              const withLifecycle = appendLifecycleEvent(withSalary, {
-                type: 'promotion',
-                title: `Promotion to ${promotion.requestedDesignation}`,
-                effectiveDate,
-                meta: {
-                  from: promotion.currentDesignation,
-                  to: promotion.requestedDesignation,
-                  salary: newSalary,
+                const withSalary = appendSalaryHistory(e, {
+                  amount: newSalary,
+                  type: 'promotion',
+                  reason: `Promotion to ${promotion.requestedDesignation}`,
+                  effectiveDate,
+                  reference: promotion.id,
+                  createdBy: meta.decidedBy || 'HR',
+                });
+
+                const withLifecycle = appendLifecycleEvent(withSalary, {
+                  type: 'promotion',
+                  title: `Promotion to ${promotion.requestedDesignation}`,
+                  effectiveDate,
+                  meta: {
+                    from: promotion.currentDesignation,
+                    to: promotion.requestedDesignation,
+                    salary: newSalary,
+                  },
+                  createdAt: effectiveDate,
+                });
+
+                return { ...withLifecycle, designation: promotion.requestedDesignation };
+              }),
+              promotions: s.promotions.map((p) =>
+                p.id === id
+                  ? {
+                      ...p,
+                      status: 'Approved',
+                      approvedOn: format(new Date(), 'yyyy-MM-dd'),
+                      effectiveDate,
+                      approvedSalary: newSalary,
+                      hrDecision: {
+                        type: 'hr',
+                        decidedBy: meta.decidedBy || 'HR',
+                        date: format(new Date(), 'yyyy-MM-dd'),
+                        notes: meta.notes || null,
+                      },
+                    }
+                  : p,
+              ),
+              notifications: [
+                {
+                  id: generateId('notif'),
+                  userId: employee?.id,
+                  title: 'Promotion Approved',
+                  message: `Congratulations! Your promotion to ${promotion.requestedDesignation} has been approved, effective ${effectiveDate}`,
+                  type: 'success',
+                  read: false,
+                  createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
                 },
-                createdAt: effectiveDate,
-              });
-
-              return { ...withLifecycle, designation: promotion.requestedDesignation };
-            }),
-            promotions: s.promotions.map((p) =>
-              p.id === id
-                ? {
-                    ...p,
-                    status: 'Approved',
-                    approvedOn: format(new Date(), 'yyyy-MM-dd'),
-                    effectiveDate,
-                    approvedSalary: newSalary,
-                    hrDecision: {
-                      type: 'hr',
-                      decidedBy: meta.decidedBy || 'HR',
-                      date: format(new Date(), 'yyyy-MM-dd'),
-                      notes: meta.notes || null,
-                    },
-                  }
-                : p,
-            ),
-          }));
+                {
+                  id: generateId('notif'),
+                  userId: hodRecipientId,
+                  title: 'Promotion Approved',
+                  message: `${employee?.name} has been promoted to ${promotion.requestedDesignation}`,
+                  type: 'info',
+                  read: false,
+                  createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+                },
+                {
+                  id: generateId('notif'),
+                  userId: financeRecipientId,
+                  title: 'Salary Update - Promotion',
+                  message: `${employee?.name} promotion: salary updated from ${employee?.salaryBase} to ${newSalary}`,
+                  type: 'info',
+                  read: false,
+                  createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+                },
+                ...s.notifications,
+              ],
+            };
+          });
         }
       },
 
@@ -2942,9 +2993,34 @@ export const useDataStore = create(
             items: batch.items.map((i) => ({ ...i, status: 'applied' })),
           };
 
+          const financeRecipientId =
+            s.employees.find((e) => e.role === 'finance')?.id || 'finance-role';
+          const employeeNotifications = batch.items.map((item) => ({
+            id: generateId('notif'),
+            userId: item.employeeId,
+            title: 'Salary Increment Applied',
+            message: `Your ${batch.type} increment has been applied. New salary: ${item.newSalary}`,
+            type: 'success',
+            read: false,
+            createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+          }));
+
           return {
             employees,
             bulkIncrements: s.bulkIncrements.map((b) => (b.id === batchId ? updatedBatch : b)),
+            notifications: [
+              ...employeeNotifications,
+              {
+                id: generateId('notif'),
+                userId: financeRecipientId,
+                title: 'Bulk Increment Batch Applied',
+                message: `${batch.type} increment batch "${batch.code}" has been applied to ${batch.items.length} employees`,
+                type: 'info',
+                read: false,
+                createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+              },
+              ...s.notifications,
+            ],
           };
         }),
 
@@ -3239,7 +3315,36 @@ export const useDataStore = create(
               },
             ],
           };
-          return { attendanceCorrections: [correction, ...s.attendanceCorrections] };
+
+          const hodRecipientId =
+            s.employees.find((e) => e.role === 'hod' && e.department === employee?.department)
+              ?.id || 'hod-' + employee?.department;
+          const hrRecipientId = s.employees.find((e) => e.role === 'hr')?.id || 'hr-role';
+
+          return {
+            attendanceCorrections: [correction, ...s.attendanceCorrections],
+            notifications: [
+              {
+                id: generateId('notif'),
+                userId: hodRecipientId,
+                title: 'Attendance Correction Request',
+                message: `${employee?.name} has submitted an attendance correction request for ${corrections.originalAttendance?.date || 'a date'}`,
+                type: 'info',
+                read: false,
+                createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+              },
+              {
+                id: generateId('notif'),
+                userId: hrRecipientId,
+                title: 'Attendance Correction Submitted',
+                message: `Correction request from ${employee?.name} (${employee?.department}) submitted and pending HOD review`,
+                type: 'info',
+                read: false,
+                createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+              },
+              ...s.notifications,
+            ],
+          };
         }),
 
       reviewAttendanceCorrection: (id, decision) =>
@@ -3268,6 +3373,10 @@ export const useDataStore = create(
             }
           }
 
+          const hodRecipientId =
+            s.employees.find((e) => e.role === 'hod' && e.department === correction.department)
+              ?.id || 'hod-' + correction.department;
+
           return {
             attendance,
             attendanceCorrections: s.attendanceCorrections.map((c) =>
@@ -3289,6 +3398,27 @@ export const useDataStore = create(
                   }
                 : c,
             ),
+            notifications: [
+              {
+                id: generateId('notif'),
+                userId: correction.employeeId,
+                title: `Attendance Correction ${decision.status}`,
+                message: `Your attendance correction request has been ${decision.status.toLowerCase()}${decision.notes ? ': ' + decision.notes : ''}`,
+                type: decision.status === 'Approved' ? 'success' : 'warning',
+                read: false,
+                createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+              },
+              {
+                id: generateId('notif'),
+                userId: hodRecipientId,
+                title: 'Attendance Correction Processed',
+                message: `Your review of ${correction.employeeName}'s correction request has been recorded as ${decision.status}`,
+                type: 'info',
+                read: false,
+                createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+              },
+              ...s.notifications,
+            ],
           };
         }),
 
@@ -3427,19 +3557,46 @@ export const useDataStore = create(
         })),
 
       updateCandidateStage: (id, stage, meta = {}) =>
-        set((s) => ({
-          candidates: s.candidates.map((c) =>
-            c.id === id
-              ? {
-                  ...c,
-                  stage,
-                  status: stage === 'hired' ? 'Hired' : c.status,
-                  stageUpdatedOn: format(new Date(), 'yyyy-MM-dd'),
-                  ...meta,
-                }
-              : c,
-          ),
-        })),
+        set((s) => {
+          const candidate = s.candidates.find((c) => c.id === id);
+          const hiringManagerId =
+            s.employees.find((e) => e.role === 'hiring-manager')?.id || 'hiring-role';
+
+          return {
+            candidates: s.candidates.map((c) =>
+              c.id === id
+                ? {
+                    ...c,
+                    stage,
+                    status: stage === 'hired' ? 'Hired' : c.status,
+                    stageUpdatedOn: format(new Date(), 'yyyy-MM-dd'),
+                    ...meta,
+                  }
+                : c,
+            ),
+            notifications: [
+              {
+                id: generateId('notif'),
+                userId: candidate?.id || `cand-${candidate?.email}`,
+                title: 'Application Status Update',
+                message: `Your application for ${candidate?.role || 'position'} has moved to ${stage} stage`,
+                type: stage === 'hired' ? 'success' : 'info',
+                read: false,
+                createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+              },
+              {
+                id: generateId('notif'),
+                userId: hiringManagerId,
+                title: 'Candidate Stage Updated',
+                message: `${candidate?.name || 'Candidate'} for ${candidate?.role || 'position'} moved to ${stage} stage`,
+                type: 'info',
+                read: false,
+                createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+              },
+              ...s.notifications,
+            ],
+          };
+        }),
 
       addCandidateEvaluation: (id, evaluation) =>
         set((s) => ({
@@ -3460,28 +3617,54 @@ export const useDataStore = create(
         })),
 
       addSelectionBoardApproval: (id, approval) =>
-        set((s) => ({
-          candidates: s.candidates.map((c) => {
-            if (c.id !== id) return c;
-            const approvals = [
-              ...(c.selectionBoard?.approvals || []),
-              { ...approval, date: approval.date || format(new Date(), 'yyyy-MM-dd') },
-            ];
-            const approvedCount = approvals.filter((a) => a.decision === 'approved').length;
-            const status =
-              approvedCount >= (selectionBoardWorkflow.requiredApprovals || 2)
-                ? 'approved'
-                : 'pending';
-            return {
-              ...c,
-              selectionBoard: {
-                ...(c.selectionBoard || {}),
-                approvals,
-                status,
-              },
-            };
-          }),
-        })),
+        set((s) => {
+          const candidate = s.candidates.find((c) => c.id === id);
+          const hrRecipientId = s.employees.find((e) => e.role === 'hr')?.id || 'hr-role';
+          const approvals = [
+            ...(candidate?.selectionBoard?.approvals || []),
+            { ...approval, date: approval.date || format(new Date(), 'yyyy-MM-dd') },
+          ];
+          const approvedCount = approvals.filter((a) => a.decision === 'approved').length;
+          const isFullyApproved = approvedCount >= (selectionBoardWorkflow.requiredApprovals || 2);
+
+          return {
+            candidates: s.candidates.map((c) => {
+              if (c.id !== id) return c;
+              const status = isFullyApproved ? 'approved' : 'pending';
+              return {
+                ...c,
+                selectionBoard: {
+                  ...(c.selectionBoard || {}),
+                  approvals,
+                  status,
+                },
+              };
+            }),
+            notifications: isFullyApproved
+              ? [
+                  {
+                    id: generateId('notif'),
+                    userId: candidate?.id || `cand-${candidate?.email}`,
+                    title: 'Selection Board Approved',
+                    message: `Congratulations! You have been approved by the Selection Board for ${candidate?.role || 'position'}`,
+                    type: 'success',
+                    read: false,
+                    createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+                  },
+                  {
+                    id: generateId('notif'),
+                    userId: hrRecipientId,
+                    title: 'Selection Board Complete',
+                    message: `${candidate?.name || 'Candidate'} for ${candidate?.role || 'position'} has received all required Selection Board approvals`,
+                    type: 'success',
+                    read: false,
+                    createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+                  },
+                  ...s.notifications,
+                ]
+              : s.notifications,
+          };
+        }),
 
       linkCandidateDocument: (id, document) =>
         set((s) => ({
@@ -3525,26 +3708,64 @@ export const useDataStore = create(
       // ============ RESIGNATION ACTIONS ============
       addResignation: (resignation) => {
         const employee = get().getEmployee(resignation.employeeId);
-        set((s) => ({
-          resignations: [
-            ...s.resignations,
-            {
-              ...resignation,
-              id: generateId('res'),
-              employeeName: employee?.name,
-              department: employee?.department,
-              faculty: employee?.faculty,
-              designation: employee?.designation,
-              status: 'Pending',
-              appliedOn: format(new Date(), 'yyyy-MM-dd'),
-              exitSurvey: null,
-              exitInterview: null,
-              exitDocuments: [],
-              hrApproval: null,
-              handoverStatus: 'pending',
-            },
-          ],
-        }));
+        set((s) => {
+          const hodRecipientId =
+            s.employees.find((e) => e.role === 'hod' && e.department === employee?.department)
+              ?.id || 'hod-' + employee?.department;
+          const hrRecipientId = s.employees.find((e) => e.role === 'hr')?.id || 'hr-role';
+          const vcRecipientId = s.employees.find((e) => e.role === 'vc')?.id || 'vc-role';
+
+          return {
+            resignations: [
+              ...s.resignations,
+              {
+                ...resignation,
+                id: generateId('res'),
+                employeeName: employee?.name,
+                department: employee?.department,
+                faculty: employee?.faculty,
+                designation: employee?.designation,
+                status: 'Pending',
+                appliedOn: format(new Date(), 'yyyy-MM-dd'),
+                exitSurvey: null,
+                exitInterview: null,
+                exitDocuments: [],
+                hrApproval: null,
+                handoverStatus: 'pending',
+              },
+            ],
+            notifications: [
+              {
+                id: generateId('notif'),
+                userId: hodRecipientId,
+                title: 'Resignation Notice',
+                message: `${employee?.name} has submitted a resignation notice, effective ${resignation.lastWorkingDate || 'soon'}`,
+                type: 'warning',
+                read: false,
+                createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+              },
+              {
+                id: generateId('notif'),
+                userId: hrRecipientId,
+                title: 'Resignation Received',
+                message: `${employee?.name} (${employee?.designation}) has submitted resignation notice`,
+                type: 'warning',
+                read: false,
+                createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+              },
+              {
+                id: generateId('notif'),
+                userId: vcRecipientId,
+                title: 'Resignation Notice',
+                message: `${employee?.name} from ${employee?.department} has submitted resignation`,
+                type: 'warning',
+                read: false,
+                createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+              },
+              ...s.notifications,
+            ],
+          };
+        });
       },
 
       updateResignationStatus: (id, status, updates = {}) =>
@@ -3826,8 +4047,9 @@ export const useDataStore = create(
       getPamsForHr: () => get().pamsSubmissions.filter((p) => p.status === 'vc-approved'),
 
       hrApprovePams: (id, decision) =>
-        set((s) => ({
-          pamsSubmissions: s.pamsSubmissions.map((p) => {
+        set((s) => {
+          const pams = s.pamsSubmissions.find((p) => p.id === id);
+          const updatedSubmissions = s.pamsSubmissions.map((p) => {
             if (p.id !== id) return p;
             const hrReview = {
               status: 'hr-final',
@@ -3838,6 +4060,12 @@ export const useDataStore = create(
               ...p,
               status: 'hr-final',
               hrReview,
+              presidentNotified: {
+                status: 'overview-sent',
+                sentAt: format(new Date(), 'yyyy-MM-dd'),
+                overviewSent: true,
+                message: `PAMS submission for ${p.employeeName} has been completed by HR and is ready for President review`,
+              },
               history: [
                 ...p.history,
                 {
@@ -3846,10 +4074,35 @@ export const useDataStore = create(
                   at: hrReview.processedAt,
                   note: decision.comment || null,
                 },
+                {
+                  action: 'president-overview-sent',
+                  by: 'system',
+                  at: format(new Date(), 'yyyy-MM-dd'),
+                  note: 'Overview notification sent to President',
+                },
               ],
             };
-          }),
-        })),
+          });
+
+          // Add notification for President
+          const newNotifications = [
+            {
+              id: generateId('notif'),
+              userId: 'president-role',
+              title: 'PAMS Overview Ready',
+              message: `${pams?.employeeName}'s PAMS has been finalized by HR (${pams?.period})`,
+              type: 'info',
+              read: false,
+              createdAt: format(new Date(), 'yyyy-MM-dd HH:mm'),
+            },
+            ...s.notifications,
+          ];
+
+          return {
+            pamsSubmissions: updatedSubmissions,
+            notifications: newNotifications,
+          };
+        }),
 
       // Dean handles HOD PAMS
       getPamsForDean: (faculty) =>

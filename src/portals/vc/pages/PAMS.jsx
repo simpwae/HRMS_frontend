@@ -186,109 +186,214 @@ export default function VCPAMS() {
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {selected.category === 'faculty' ? (
               <>
-                <div className="border-t pt-3">
-                  <p className="text-sm font-semibold text-gray-900 mb-2">Teaching Assessment</p>
-                  <AchievementDisplay
-                    label="Student Evaluation"
-                    value={selected.teachingAssessment?.studentEvaluation}
-                  />
-                  <AchievementDisplay
-                    label="Teaching Workload"
-                    value={selected.teachingAssessment?.teachingWorkload}
-                  />
-                  <AchievementDisplay
-                    label="Course Completion"
-                    value={selected.teachingAssessment?.courseCompletion}
-                  />
-                </div>
+                {selected.hodReview && selected.hodReview.assessment ? (
+                  <>
+                    <div className="border-t pt-3">
+                      <p className="text-sm font-semibold text-gray-900 mb-2">HOD Assessment</p>
+                      <div className="space-y-2">
+                        <div className="p-3 rounded border bg-blue-50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-800">Teaching</span>
+                            <Badge>{selected.hodReview.assessment.teaching}</Badge>
+                          </div>
+                          {selected.hodReview.assessmentComments?.teaching && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              {selected.hodReview.assessmentComments.teaching}
+                            </p>
+                          )}
+                        </div>
+                        <div className="p-3 rounded border bg-green-50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-800">Research</span>
+                            <Badge variant="success">
+                              {selected.hodReview.assessment.research}
+                            </Badge>
+                          </div>
+                          {selected.hodReview.assessmentComments?.research && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              {selected.hodReview.assessmentComments.research}
+                            </p>
+                          )}
+                        </div>
+                        <div className="p-3 rounded border bg-purple-50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-800">
+                              FYP Supervision
+                            </span>
+                            <Badge variant="secondary">
+                              {selected.hodReview.assessment.fypSupervision}
+                            </Badge>
+                          </div>
+                          {selected.hodReview.assessmentComments?.fypSupervision && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              {selected.hodReview.assessmentComments.fypSupervision}
+                            </p>
+                          )}
+                        </div>
+                        <div className="p-3 rounded border bg-orange-50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-800">Service</span>
+                            <Badge variant="info">{selected.hodReview.assessment.service}</Badge>
+                          </div>
+                          {selected.hodReview.assessmentComments?.service && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              {selected.hodReview.assessmentComments.service}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
-                <div className="border-t pt-3">
-                  <p className="text-sm font-semibold text-gray-900 mb-2">Research & Supervision</p>
-                  <AchievementDisplay label="FYP Supervision" value={selected.fypSupervision} />
-                  <AchievementDisplay
-                    label="MS/PhD Supervision"
-                    value={selected.msPhDSupervision}
-                  />
-                  <AchievementDisplay
-                    label="Research Publications"
-                    value={selected.researchPublications}
-                  />
-                  <AchievementDisplay label="Research Funding" value={selected.researchFunding} />
-                </div>
-
-                <div className="border-t pt-3">
-                  <p className="text-sm font-semibold text-gray-900 mb-2">
-                    Service & Administration
-                  </p>
-                  <AchievementDisplay
-                    label="Administrative Duties"
-                    value={selected.administrativeDuties}
-                  />
-                  <AchievementDisplay
-                    label="Service to Community"
-                    value={selected.serviceToCommunity}
-                  />
-                </div>
-
-                {selected.hodReview && (
-                  <div className="border-t pt-3 bg-blue-50 p-3 rounded">
-                    <p className="text-sm font-semibold text-gray-900">HOD Review</p>
-                    <p className="text-xs text-gray-600 mt-1">
-                      Meeting: {selected.hodReview.meetingDate || 'Not scheduled'}
-                    </p>
-                    {selected.hodReview.comment && (
-                      <p className="text-xs text-gray-700 mt-1">
-                        Note: {selected.hodReview.comment}
+                    <div className="border-t pt-3 bg-blue-50 p-3 rounded">
+                      <p className="text-sm font-semibold text-gray-900">HOD Meeting Details</p>
+                      <p className="text-xs text-gray-600 mt-1">
+                        📅 Meeting: {selected.hodReview.meetingDate || 'Not scheduled'}
                       </p>
-                    )}
+                      {selected.hodReview.comment && (
+                        <p className="text-xs text-gray-700 mt-2">
+                          💬 {selected.hodReview.comment}
+                        </p>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="border-t pt-3 bg-yellow-50 p-3 rounded">
+                    <p className="text-sm text-yellow-800">⏳ Awaiting HOD Assessment</p>
                   </div>
                 )}
               </>
             ) : (
               <>
-                <div className="border-t pt-3">
-                  <p className="text-sm font-semibold text-gray-900 mb-2">Leadership</p>
-                  <AchievementDisplay label="Leadership" value={selected.leadership} />
-                </div>
-                <div className="border-t pt-3">
-                  <p className="text-sm font-semibold text-gray-900 mb-2">
-                    Curriculum & Instruction
-                  </p>
-                  <AchievementDisplay
-                    label="Curriculum Instruction"
-                    value={selected.curriculumInstruction}
-                  />
-                </div>
-                <div className="border-t pt-3">
-                  <p className="text-sm font-semibold text-gray-900 mb-2">Management</p>
-                  <AchievementDisplay
-                    label="Management & Admin"
-                    value={selected.managementAdministration}
-                  />
-                </div>
-                <div className="border-t pt-3">
-                  <p className="text-sm font-semibold text-gray-900 mb-2">Personnel</p>
-                  <AchievementDisplay label="Personnel" value={selected.personnel} />
-                </div>
-                <div className="border-t pt-3">
-                  <p className="text-sm font-semibold text-gray-900 mb-2">Promotion & Tenure</p>
-                  <AchievementDisplay label="Promotion & Tenure" value={selected.promotionTenure} />
-                </div>
+                {selected.deanReview && selected.deanReview.assessment ? (
+                  <>
+                    <div className="border-t pt-3">
+                      <p className="text-sm font-semibold text-gray-900 mb-2">Dean Assessment</p>
+                      <div className="space-y-2">
+                        <div className="p-3 rounded border bg-blue-50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-800">Teaching</span>
+                            <Badge>{selected.deanReview.assessment.teaching}</Badge>
+                          </div>
+                          {selected.deanReview.assessmentComments?.teaching && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              {selected.deanReview.assessmentComments.teaching}
+                            </p>
+                          )}
+                        </div>
+                        <div className="p-3 rounded border bg-green-50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-800">Research</span>
+                            <Badge variant="success">
+                              {selected.deanReview.assessment.research}
+                            </Badge>
+                          </div>
+                          {selected.deanReview.assessmentComments?.research && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              {selected.deanReview.assessmentComments.research}
+                            </p>
+                          )}
+                        </div>
+                        <div className="p-3 rounded border bg-purple-50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-800">
+                              FYP Supervision
+                            </span>
+                            <Badge variant="secondary">
+                              {selected.deanReview.assessment.fypSupervision}
+                            </Badge>
+                          </div>
+                          {selected.deanReview.assessmentComments?.fypSupervision && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              {selected.deanReview.assessmentComments.fypSupervision}
+                            </p>
+                          )}
+                        </div>
+                        <div className="p-3 rounded border bg-orange-50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-gray-800">Service</span>
+                            <Badge variant="info">{selected.deanReview.assessment.service}</Badge>
+                          </div>
+                          {selected.deanReview.assessmentComments?.service && (
+                            <p className="text-xs text-gray-600 mt-1">
+                              {selected.deanReview.assessmentComments.service}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
 
-                {selected.deanReview && (
-                  <div className="border-t pt-3 bg-blue-50 p-3 rounded">
-                    <p className="text-sm font-semibold text-gray-900">Dean Review</p>
-                    <p className="text-xs text-gray-600 mt-1">
-                      Meeting: {selected.deanReview.meetingDate || 'Not scheduled'}
-                    </p>
-                    {selected.deanReview.comment && (
-                      <p className="text-xs text-gray-700 mt-1">
-                        Note: {selected.deanReview.comment}
+                    <div className="border-t pt-3 bg-green-50 p-3 rounded">
+                      <p className="text-sm font-semibold text-gray-900">Dean Meeting Details</p>
+                      <p className="text-xs text-gray-600 mt-1">
+                        📅 Meeting: {selected.deanReview.meetingDate || 'Not scheduled'}
                       </p>
-                    )}
+                      {selected.deanReview.comment && (
+                        <p className="text-xs text-gray-700 mt-2">
+                          💬 {selected.deanReview.comment}
+                        </p>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="border-t pt-3 bg-yellow-50 p-3 rounded">
+                    <p className="text-sm text-yellow-800">⏳ Awaiting Dean Assessment</p>
                   </div>
                 )}
               </>
+            )}
+
+            {selected.category === 'hod' &&
+            selected.deanReview &&
+            selected.deanReview.assessment ? (
+              <div className="border-t pt-3">
+                <p className="text-sm font-semibold text-gray-900 mb-2">Dean Assessment (HOD)</p>
+                <div className="space-y-2">
+                  <div className="p-3 rounded border bg-blue-50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-800">Teaching</span>
+                      <Badge>{selected.deanReview.assessment.teaching}</Badge>
+                    </div>
+                  </div>
+                  <div className="p-3 rounded border bg-green-50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-800">Research</span>
+                      <Badge variant="success">{selected.deanReview.assessment.research}</Badge>
+                    </div>
+                  </div>
+                  <div className="p-3 rounded border bg-purple-50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-800">FYP Supervision</span>
+                      <Badge variant="secondary">
+                        {selected.deanReview.assessment.fypSupervision}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="p-3 rounded border bg-orange-50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-800">Service</span>
+                      <Badge variant="info">{selected.deanReview.assessment.service}</Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              selected.category === 'hod' && (
+                <div className="border-t pt-3 bg-yellow-50 p-3 rounded">
+                  <p className="text-sm text-yellow-800">⏳ Awaiting Dean Assessment</p>
+                </div>
+              )
+            )}
+
+            {selected.deanReview && selected.category === 'hod' && (
+              <div className="border-t pt-3 bg-green-50 p-3 rounded">
+                <p className="text-sm font-semibold text-gray-900">Dean Meeting Details (HOD)</p>
+                <p className="text-xs text-gray-600 mt-1">
+                  📅 Meeting: {selected.deanReview.meetingDate || 'Not scheduled'}
+                </p>
+                {selected.deanReview.comment && (
+                  <p className="text-xs text-gray-700 mt-2">💬 {selected.deanReview.comment}</p>
+                )}
+              </div>
             )}
           </div>
 

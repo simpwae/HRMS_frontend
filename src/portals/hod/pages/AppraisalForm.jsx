@@ -19,7 +19,14 @@ const categories = [
   { key: 'service', label: 'Service' },
 ];
 
-export default function HODAppraisalForm({ pamsId, employeeId, pamsData, onClose }) {
+export default function HODAppraisalForm({
+  pamsId,
+  employeeId,
+  pamsData,
+  meetingDate,
+  comments,
+  onClose,
+}) {
   const getPamsForEmployee = useDataStore((s) => s.getPamsForEmployee);
   const getEmployee = useDataStore((s) => s.getEmployee);
   const getEmployeePublications = useDataStore((s) => s.getEmployeePublications);
@@ -84,8 +91,6 @@ export default function HODAppraisalForm({ pamsId, employeeId, pamsData, onClose
     fypSupervision: '',
     service: '',
   });
-  const [meetingDate, setMeetingDate] = useState('');
-  const [comments, setComments] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -208,20 +213,6 @@ export default function HODAppraisalForm({ pamsId, employeeId, pamsData, onClose
                 </p>
                 <p>
                   <strong>Admin:</strong> {pams.workload?.admin}
-                </p>
-              </div>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-700">Performance Rubric</p>
-              <div className="mt-2 p-3 bg-gray-50 rounded border text-sm text-gray-700 space-y-2">
-                <p>
-                  <strong>Teaching:</strong> {pams.rubric?.teaching}
-                </p>
-                <p>
-                  <strong>Research:</strong> {pams.rubric?.research}
-                </p>
-                <p>
-                  <strong>Service:</strong> {pams.rubric?.service}
                 </p>
               </div>
             </div>
@@ -353,7 +344,7 @@ export default function HODAppraisalForm({ pamsId, employeeId, pamsData, onClose
 
         {/* Attendance Data */}
         <Card>
-          <h3 className="font-semibold text-gray-900 mb-3">Attendance Summary (Past Month)</h3>
+          <h3 className="font-semibold text-gray-900 mb-3">Attendance Summary (Whole Year)</h3>
           <div className="grid grid-cols-4 gap-3">
             <div className="text-center p-3 bg-green-50 rounded">
               <p className="text-2xl font-bold text-green-700">{attendance.present}</p>
@@ -406,70 +397,114 @@ export default function HODAppraisalForm({ pamsId, employeeId, pamsData, onClose
           </p>
           <div className="space-y-6">
             {categories.map((cat) => {
-              // Map category keys to employee submission data
+              // Map category keys to employee profile data (since rubric was removed from employee submission)
               const categoryData = {
                 teaching: {
-                  submitted: pams.rubric?.teaching,
+                  submitted: pams.workload?.teachingLoad || 'Not provided',
                   profile: (
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {publications.length > 0 && (
-                        <p className="text-xs text-gray-600">
-                          📚 {publications.length} publication(s)
-                        </p>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-600">
+                            Publications: {publications.length}
+                          </p>
+                          {publications.slice(0, 2).map((pub, idx) => (
+                            <p key={idx} className="text-xs text-gray-600 ml-2">
+                              • {pub.title}
+                            </p>
+                          ))}
+                        </div>
                       )}
-                      {pams.workload?.teachingLoad && (
-                        <p className="text-xs text-gray-600">
-                          📖 Workload: {pams.workload.teachingLoad}
-                        </p>
-                      )}
+                      <p className="text-xs text-gray-600">
+                        📖 Workload: {pams.workload?.teachingLoad || 'Not specified'}
+                      </p>
                     </div>
                   ),
                 },
                 research: {
-                  submitted: pams.rubric?.research,
+                  submitted:
+                    publications.length > 0
+                      ? `${publications.length} publication(s) this period`
+                      : 'No publications',
                   profile: (
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {publications.length > 0 && (
-                        <p className="text-xs text-gray-600">
-                          📄 {publications.length} publication(s) this period
-                        </p>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-600">Publications:</p>
+                          {publications.map((pub, idx) => (
+                            <p key={idx} className="text-xs text-gray-600 ml-2">
+                              • {pub.title} ({pub.year})
+                            </p>
+                          ))}
+                        </div>
                       )}
                       {researchGrants.length > 0 && (
-                        <p className="text-xs text-gray-600">
-                          💰 {researchGrants.length} research grant(s)
-                        </p>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-600">
+                            Research Grants: {researchGrants.length}
+                          </p>
+                          {researchGrants.map((grant, idx) => (
+                            <p key={idx} className="text-xs text-gray-600 ml-2">
+                              • {grant.grantName} - PKR {Number(grant.amount).toLocaleString()}
+                            </p>
+                          ))}
+                        </div>
                       )}
                     </div>
                   ),
                 },
                 fypSupervision: {
-                  submitted: pams.workload?.projectSupervision,
+                  submitted:
+                    fypSupervisions.length > 0
+                      ? `${fypSupervisions.length} FYP(s) supervised`
+                      : 'No FYPs',
                   profile: (
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       {fypSupervisions.length > 0 && (
-                        <p className="text-xs text-gray-600">
-                          🎓 {fypSupervisions.length} FYP(s) supervised
-                        </p>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-600">
+                            FYPs Supervised: {fypSupervisions.length}
+                          </p>
+                          {fypSupervisions.map((fyp, idx) => (
+                            <p key={idx} className="text-xs text-gray-600 ml-2">
+                              • {fyp.projectTitle} ({fyp.numberOfStudents || 1} student(s))
+                            </p>
+                          ))}
+                        </div>
                       )}
                       {thesisSupervisions.length > 0 && (
-                        <p className="text-xs text-gray-600">
-                          📖 {thesisSupervisions.length} thesis/theses supervised
-                        </p>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-600">
+                            Theses Supervised: {thesisSupervisions.length}
+                          </p>
+                          {thesisSupervisions.map((thesis, idx) => (
+                            <p key={idx} className="text-xs text-gray-600 ml-2">
+                              • {thesis.thesisTitle} ({thesis.level}) - {thesis.studentName}
+                            </p>
+                          ))}
+                        </div>
                       )}
                     </div>
                   ),
                 },
                 service: {
-                  submitted: pams.rubric?.service,
+                  submitted: pams.workload?.admin || 'Not provided',
                   profile: (
-                    <div className="space-y-1">
-                      {pams.workload?.admin && (
-                        <p className="text-xs text-gray-600">⚙️ Admin: {pams.workload.admin}</p>
-                      )}
+                    <div className="space-y-2">
+                      <p className="text-xs text-gray-600">
+                        ⚙️ Admin: {pams.workload?.admin || 'Not specified'}
+                      </p>
                       {adminDuties.length > 0 && (
-                        <p className="text-xs text-gray-600">
-                          📋 {adminDuties.length} admin duty/duties
-                        </p>
+                        <div>
+                          <p className="text-xs font-semibold text-gray-600">
+                            Admin Duties: {adminDuties.length}
+                          </p>
+                          {adminDuties.slice(0, 3).map((duty, idx) => (
+                            <p key={idx} className="text-xs text-gray-600 ml-2">
+                              • {duty.dutyType} ({duty.dutyLevel})
+                            </p>
+                          ))}
+                        </div>
                       )}
                     </div>
                   ),
@@ -533,33 +568,6 @@ export default function HODAppraisalForm({ pamsId, employeeId, pamsData, onClose
                 </div>
               );
             })}
-          </div>
-        </Card>
-
-        {/* Meeting & Comments */}
-        <Card>
-          <h3 className="font-semibold text-gray-900 mb-4">Appraisal Meeting</h3>
-          <div className="space-y-4">
-            <label className="text-sm font-medium text-gray-700 block">
-              Meeting Date *
-              <input
-                type="date"
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={meetingDate}
-                onChange={(e) => setMeetingDate(e.target.value)}
-                required
-              />
-            </label>
-            <label className="text-sm font-medium text-gray-700 block">
-              Comments & Feedback
-              <textarea
-                rows={4}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={comments}
-                onChange={(e) => setComments(e.target.value)}
-                placeholder="Provide constructive feedback on the employee's performance..."
-              />
-            </label>
           </div>
         </Card>
 

@@ -6,9 +6,11 @@ import {
   UserCircleIcon,
   BellIcon,
   ChevronDownIcon,
+  CheckIcon,
 } from '@heroicons/react/24/outline';
-import { useState, Fragment } from 'react';
+import { useState, Fragment, useMemo } from 'react';
 import { useAuthStore, portalRoutes, roleNames } from '../state/auth';
+import { useDataStore } from '../state/data';
 import CECOSLogo from '../components/CECOSLogo';
 
 /**
@@ -29,9 +31,18 @@ export default function PortalLayout({
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [notificationMenuOpen, setNotificationMenuOpen] = useState(false);
 
   const { user, activeRole, logout, switchRole, getAvailableRoles } = useAuthStore();
+  const { getNotifications, markNotificationRead } = useDataStore();
   const availableRoles = getAvailableRoles().filter((r) => r !== activeRole);
+
+  const notifications = useMemo(() => {
+    const userNotifs = getNotifications(user?.id || 'all');
+    return userNotifs.slice(0, 5); // Show last 5
+  }, [getNotifications, user]);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const handleLogout = () => {
     logout();
@@ -144,10 +155,70 @@ export default function PortalLayout({
           </div>
           <div className="flex items-center gap-4">
             {/* Notifications */}
-            <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
-              <BellIcon className="w-6 h-6 text-gray-600" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setNotificationMenuOpen(!notificationMenuOpen)}
+                className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <BellIcon className="w-6 h-6 text-gray-600" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                )}
+              </button>
+
+              {notificationMenuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setNotificationMenuOpen(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-80 rounded-xl bg-white shadow-lg ring-1 ring-black/5 z-20 max-h-96 overflow-y-auto">
+                    <div className="px-4 py-3 border-b border-gray-100 sticky top-0 bg-white">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold text-gray-900">Notifications</p>
+                        {unreadCount > 0 && (
+                          <span className="text-xs font-medium bg-red-100 text-red-700 px-2 py-1 rounded-full">
+                            {unreadCount} new
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {notifications.length === 0 ? (
+                      <div className="px-4 py-8 text-center text-gray-500">
+                        <BellIcon className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                        <p className="text-sm">No notifications</p>
+                      </div>
+                    ) : (
+                      <div className="py-2">
+                        {notifications.map((notif) => (
+                          <button
+                            key={notif.id}
+                            onClick={() => {
+                              markNotificationRead(notif.id);
+                              setNotificationMenuOpen(false);
+                            }}
+                            className={`w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-0 transition-colors ${
+                              notif.read ? 'opacity-60' : ''
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-gray-900">{notif.title}</p>
+                                <p className="text-xs text-gray-600 mt-1">{notif.message}</p>
+                                <p className="text-xs text-gray-400 mt-1">{notif.createdAt}</p>
+                              </div>
+                              {!notif.read && (
+                                <div className="w-2 h-2 mt-1 bg-blue-500 rounded-full shrink-0"></div>
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
 
             {/* Profile Dropdown */}
             <div className="relative">
@@ -203,10 +274,70 @@ export default function PortalLayout({
             <span className="font-bold text-gray-900">{portalName}</span>
           </div>
           <div className="flex items-center gap-2">
-            <button className="relative p-2 rounded-lg hover:bg-gray-100">
-              <BellIcon className="w-5 h-5 text-gray-600" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setNotificationMenuOpen(!notificationMenuOpen)}
+                className="relative p-2 rounded-lg hover:bg-gray-100"
+              >
+                <BellIcon className="w-5 h-5 text-gray-600" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                )}
+              </button>
+
+              {notificationMenuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setNotificationMenuOpen(false)}
+                  />
+                  <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-xl bg-white shadow-lg ring-1 ring-black/5 z-50 max-h-96 overflow-y-auto">
+                    <div className="px-4 py-3 border-b border-gray-100 sticky top-0 bg-white">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold text-gray-900">Notifications</p>
+                        {unreadCount > 0 && (
+                          <span className="text-xs font-medium bg-red-100 text-red-700 px-2 py-1 rounded-full">
+                            {unreadCount} new
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {notifications.length === 0 ? (
+                      <div className="px-4 py-8 text-center text-gray-500">
+                        <BellIcon className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                        <p className="text-sm">No notifications</p>
+                      </div>
+                    ) : (
+                      <div className="py-2">
+                        {notifications.map((notif) => (
+                          <button
+                            key={notif.id}
+                            onClick={() => {
+                              markNotificationRead(notif.id);
+                              setNotificationMenuOpen(false);
+                            }}
+                            className={`w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-0 transition-colors ${
+                              notif.read ? 'opacity-60' : ''
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-gray-900">{notif.title}</p>
+                                <p className="text-xs text-gray-600 mt-1">{notif.message}</p>
+                                <p className="text-xs text-gray-400 mt-1">{notif.createdAt}</p>
+                              </div>
+                              {!notif.read && (
+                                <div className="w-2 h-2 mt-1 bg-blue-500 rounded-full shrink-0"></div>
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
             <button
               onClick={() => setMobileMenuOpen(true)}
               className="p-2 rounded-lg hover:bg-gray-100"

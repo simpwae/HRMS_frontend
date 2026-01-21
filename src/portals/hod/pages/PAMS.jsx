@@ -74,6 +74,35 @@ export default function HODPAMS() {
     [getEmployeesByDepartment, user],
   );
 
+  const handleScheduleMeeting = () => {
+    if (!meetingDate) {
+      alert('Please select a meeting date');
+      return;
+    }
+    if (!selected) return;
+
+    // Update the PAMS with meeting date and send email notification
+    hodReviewPams(selected.id, {
+      action: 'schedule-meeting',
+      meetingDate,
+      followUpDate,
+      comment,
+      by: 'hod',
+    });
+
+    // Show confirmation
+    alert(
+      `Meeting scheduled for ${new Date(meetingDate).toLocaleDateString()}.\nEmail notification sent to ${selected.employeeName || selected.employeeId}`,
+    );
+
+    // Clear form
+    setComment('');
+    setMeetingDate('');
+    setFollowUpDate('');
+    setSelected(null);
+    setShowAppraisalForm(false);
+  };
+
   const handleDecision = (action) => {
     if (!selected) return;
     hodReviewPams(selected.id, {
@@ -210,29 +239,47 @@ export default function HODPAMS() {
           </div>
 
           <div className="space-y-4">
-            <SectionTitle>Teaching Assessment</SectionTitle>
-            <AchievementRow
-              label="Student Evaluation (SETE)"
-              value={selected.teachingAssessment?.studentEvaluation}
-            />
-            <AchievementRow
-              label="Teaching Workload"
-              value={selected.teachingAssessment?.teachingWorkload}
-            />
-            <AchievementRow
-              label="Course Completion"
-              value={selected.teachingAssessment?.courseCompletion}
-            />
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-sm text-blue-900">
+                👉 Click <strong>"Show Appraisal Form"</strong> below to view the employee's
+                submission and provide your assessment.
+              </p>
+            </div>
 
-            <SectionTitle>Research & Supervision</SectionTitle>
-            <AchievementRow label="FYP Supervision / Academic" value={selected.fypSupervision} />
-            <AchievementRow label="MS/PhD Thesis Supervision" value={selected.msPhDSupervision} />
-            <AchievementRow label="Research Publications" value={selected.researchPublications} />
-            <AchievementRow label="Research Funding" value={selected.researchFunding} />
-
-            <SectionTitle>Service & Administration</SectionTitle>
-            <AchievementRow label="Administrative Duties" value={selected.administrativeDuties} />
-            <AchievementRow label="Service to Community" value={selected.serviceToCommunity} />
+            {/* Meeting Date Section */}
+            <div className="border rounded-lg p-4 bg-gray-50">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">Meeting Schedule</h3>
+              <div className="grid gap-3 md:grid-cols-2">
+                <label className="text-sm font-medium text-gray-700">
+                  Meeting Date <span className="text-red-500">*</span>
+                  <input
+                    type="date"
+                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    value={meetingDate}
+                    onChange={(e) => setMeetingDate(e.target.value)}
+                  />
+                </label>
+                <label className="text-sm font-medium text-gray-700">
+                  Follow-up Meeting <span className="text-gray-400">(Optional)</span>
+                  <input
+                    type="date"
+                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    value={followUpDate}
+                    onChange={(e) => setFollowUpDate(e.target.value)}
+                  />
+                </label>
+              </div>
+              <label className="text-sm font-medium text-gray-700 block mt-3">
+                Comments / Required Changes
+                <textarea
+                  rows={3}
+                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Confirmation notes or change requests"
+                />
+              </label>
+            </div>
 
             {selected.grievance && (
               <div className="border rounded-lg p-3 bg-gray-50">
@@ -341,38 +388,6 @@ export default function HODPAMS() {
             ) : null}
           </div>
 
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            <label className="text-sm font-medium text-gray-700">
-              Meeting date
-              <input
-                type="date"
-                className="mt-1"
-                value={meetingDate}
-                onChange={(e) => setMeetingDate(e.target.value)}
-              />
-            </label>
-            <label className="text-sm font-medium text-gray-700">
-              Follow-up meeting
-              <input
-                type="date"
-                className="mt-1"
-                value={followUpDate}
-                onChange={(e) => setFollowUpDate(e.target.value)}
-                placeholder="Optional"
-              />
-            </label>
-            <label className="text-sm font-medium text-gray-700">
-              Comments / required changes
-              <textarea
-                rows={3}
-                className="mt-1"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Confirmation notes or change requests"
-              />
-            </label>
-          </div>
-
           {selected.followUpMeeting && (
             <div className="mt-3 border rounded-lg p-3 bg-gray-50">
               <p className="text-sm font-semibold text-gray-800">
@@ -402,6 +417,14 @@ export default function HODPAMS() {
               <CheckCircleIcon className="w-4 h-4" />
               {showAppraisalForm ? 'Hide' : 'Show'} Appraisal Form
             </Button>
+            <Button
+              variant="success"
+              onClick={handleScheduleMeeting}
+              disabled={!meetingDate}
+              className="flex items-center gap-2"
+            >
+              📧 Schedule Meeting
+            </Button>
           </div>
 
           {showAppraisalForm && (
@@ -410,6 +433,8 @@ export default function HODPAMS() {
                 pamsId={selected.id}
                 employeeId={selected.employeeId}
                 pamsData={selected}
+                meetingDate={meetingDate}
+                comments={comment}
                 onClose={() => setShowAppraisalForm(false)}
               />
             </div>

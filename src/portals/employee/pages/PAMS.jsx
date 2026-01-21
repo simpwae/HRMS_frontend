@@ -4,11 +4,13 @@ import {
   InboxArrowDownIcon,
   CheckCircleIcon,
   ArrowPathIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 import Card from '../../../components/Card';
 import Button from '../../../components/Button';
 import Badge from '../../../components/Badge';
 import FileUpload from '../../../components/FileUpload';
+import Modal from '../../../components/Modal';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../components/Tabs';
 import { useAuthStore } from '../../../state/auth';
 import { useDataStore } from '../../../state/data';
@@ -29,11 +31,6 @@ const initialFacultyForm = (period) => ({
     teachingLoad: '',
     admin: '',
   },
-  rubric: {
-    teaching: '',
-    research: '',
-    service: '',
-  },
   grievance: '',
   attachments: [],
 });
@@ -43,11 +40,6 @@ const initialHODForm = (period) => ({
   workload: {
     teachingLoad: '',
     admin: '',
-  },
-  rubric: {
-    teaching: '',
-    research: '',
-    service: '',
   },
   grievance: '',
   attachments: [],
@@ -76,6 +68,7 @@ export default function EmployeePAMS() {
   );
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const submissions = useMemo(
     () => (employee ? getPamsForEmployee(employee.id) : []),
@@ -111,15 +104,12 @@ export default function EmployeePAMS() {
       return;
     }
 
-    // Show confirmation popup
-    const confirmed = window.confirm(
-      `Are you sure you want to submit your ${isHOD ? 'HOD' : 'Faculty'} PAMS for period ${form.period}?\n\nOnce submitted, this form cannot be modified. Please review all information before confirming.`,
-    );
+    // Show confirmation modal instead of alert
+    setShowConfirmModal(true);
+  };
 
-    if (!confirmed) {
-      return;
-    }
-
+  const confirmSubmit = () => {
+    setShowConfirmModal(false);
     setSubmitting(true);
     submitPamsForm({
       employeeId: employee.id,
@@ -288,6 +278,134 @@ export default function EmployeePAMS() {
           </div>
         )}
       </Card>
+
+      {/* Confirmation Modal */}
+      <Modal isOpen={showConfirmModal} onClose={() => setShowConfirmModal(false)}>
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Review Your Submission</h2>
+            <button
+              onClick={() => setShowConfirmModal(false)}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+          </div>
+
+          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+            <p className="text-sm text-yellow-800">
+              ⚠️ <strong>Important:</strong> Once submitted, this form cannot be modified. Please
+              review all information carefully.
+            </p>
+          </div>
+
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+            {/* Basic Info */}
+            <div className="border rounded-lg p-4 bg-gray-50">
+              <h3 className="font-semibold text-gray-900 mb-3">Submission Details</h3>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <p className="text-gray-500">Category</p>
+                  <p className="font-medium text-gray-900">
+                    {isHOD ? 'HOD Evaluation' : 'Faculty Evaluation'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Period</p>
+                  <p className="font-medium text-gray-900">{form.period}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Department</p>
+                  <p className="font-medium text-gray-900">{employee?.department}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Faculty</p>
+                  <p className="font-medium text-gray-900">{employee?.faculty}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Submitted By</p>
+                  <p className="font-medium text-gray-900">{employee?.name}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Submitted To</p>
+                  <p className="font-medium text-gray-900">{isHOD ? 'Dean' : 'HOD'}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Workload */}
+            <div className="border rounded-lg p-4 bg-gray-50">
+              <h3 className="font-semibold text-gray-900 mb-3">Workload Description</h3>
+              <div className="space-y-3">
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Teaching Load</p>
+                  <p className="text-sm text-gray-900 whitespace-pre-line bg-white p-2 rounded border">
+                    {form.workload.teachingLoad || <em className="text-gray-400">Not provided</em>}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Administrative Duties</p>
+                  <p className="text-sm text-gray-900 whitespace-pre-line bg-white p-2 rounded border">
+                    {form.workload.admin || <em className="text-gray-400">Not provided</em>}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Grievance/Comments */}
+            {form.grievance && (
+              <div className="border rounded-lg p-4 bg-gray-50">
+                <h3 className="font-semibold text-gray-900 mb-3">Grievance / Comments</h3>
+                <p className="text-sm text-gray-900 whitespace-pre-line bg-white p-2 rounded border">
+                  {form.grievance}
+                </p>
+              </div>
+            )}
+
+            {/* Attachments */}
+            <div className="border rounded-lg p-4 bg-gray-50">
+              <h3 className="font-semibold text-gray-900 mb-3">
+                Attachments ({form.attachments.length})
+              </h3>
+              {form.attachments.length === 0 ? (
+                <p className="text-sm text-gray-500">No attachments</p>
+              ) : (
+                <ul className="space-y-2">
+                  {form.attachments.map((file) => (
+                    <li
+                      key={file.id}
+                      className="flex items-center justify-between text-sm bg-white p-2 rounded border"
+                    >
+                      <span className="font-medium text-gray-900">{file.name}</span>
+                      <span className="text-xs text-gray-500">
+                        {(file.size / 1024).toFixed(1)} KB
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-3 mt-6">
+            <Button variant="outline" onClick={() => setShowConfirmModal(false)} className="flex-1">
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmSubmit}
+              disabled={submitting}
+              className="flex-1 flex items-center justify-center gap-2"
+            >
+              {submitting ? (
+                <ArrowPathIcon className="w-4 h-4 animate-spin" />
+              ) : (
+                <CheckCircleIcon className="w-4 h-4" />
+              )}
+              Confirm & Submit
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -297,7 +415,6 @@ function PAMSForm({ form, updateField, activeTab, setActiveTab, isHOD }) {
     <Tabs value={activeTab} onValueChange={setActiveTab}>
       <TabsList className="flex flex-wrap">
         <TabsTrigger value="workload">Workload Description</TabsTrigger>
-        <TabsTrigger value="rubric">Performance Rubric</TabsTrigger>
         <TabsTrigger value="attachments">Attachments</TabsTrigger>
       </TabsList>
 
@@ -337,60 +454,7 @@ function PAMSForm({ form, updateField, activeTab, setActiveTab, isHOD }) {
             }
           />
         </label>
-      </TabsContent>
-
-      <TabsContent value="rubric" className="space-y-4 mt-4">
-        <p className="text-sm text-gray-600 mb-3">
-          {isHOD
-            ? 'Describe your performance achievements as HOD in teaching quality, research output, and departmental service.'
-            : 'Describe your achievements and performance in teaching, research, and service during this period.'}
-        </p>
-        <label className="text-sm font-medium text-gray-700 block">
-          {isHOD ? 'Teaching Leadership & Quality' : 'Teaching Effectiveness'}
-          <textarea
-            rows={3}
-            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={form.rubric.teaching}
-            onChange={(e) => updateField('rubric.teaching', e.target.value)}
-            placeholder={
-              isHOD
-                ? 'e.g., Reviewed course files; ensured accreditation compliance'
-                : 'e.g., SETE strong; course files updated; 100% syllabus coverage'
-            }
-          />
-        </label>
-
-        <label className="text-sm font-medium text-gray-700 block">
-          Research & {isHOD ? 'Funding' : 'Publications'}
-          <textarea
-            rows={3}
-            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={form.rubric.research}
-            onChange={(e) => updateField('rubric.research', e.target.value)}
-            placeholder={
-              isHOD
-                ? 'e.g., 1 grant submitted; 1 journal paper under review'
-                : 'e.g., 2 W-category publications; 1 grant proposal submitted to HEC'
-            }
-          />
-        </label>
-
-        <label className="text-sm font-medium text-gray-700 block">
-          {isHOD ? 'Departmental Service & External Engagement' : 'Service & Community Engagement'}
-          <textarea
-            rows={3}
-            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={form.rubric.service}
-            onChange={(e) => updateField('rubric.service', e.target.value)}
-            placeholder={
-              isHOD
-                ? 'e.g., Chaired curriculum committee; external outreach to industry'
-                : 'e.g., Seminar series coordination; curriculum review committee member'
-            }
-          />
-        </label>
-
-        <label className="text-sm font-medium text-gray-700 block">
+        <label className="text-sm font-medium text-gray-700 block mt-4">
           Grievance / Comments / Suggestions (Optional)
           <textarea
             rows={2}
