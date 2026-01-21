@@ -6,6 +6,7 @@ import HRDashboard from './pages/Dashboard';
 import Employees from './pages/Employees';
 import AttendanceList from './pages/AttendanceList';
 import LeavesList from './pages/LeavesList';
+import AttendanceCorrections from './pages/AttendanceCorrections';
 import Reports from './pages/Reports';
 import Announcements from './pages/Announcements';
 import Settings from './pages/Settings';
@@ -35,6 +36,7 @@ export const hrRoutes = (
     <Route path="employees" element={<Employees />} />
     <Route path="attendance" element={<Attendance />} />
     <Route path="attendance-list" element={<AttendanceList />} />
+    <Route path="attendance-corrections" element={<AttendanceCorrections />} />
     <Route path="leaves" element={<LeavesList />} />
     <Route path="promotions" element={<Promotions />} />
     <Route path="increments" element={<BulkIncrements />} />

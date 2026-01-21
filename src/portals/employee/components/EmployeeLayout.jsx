@@ -14,6 +14,11 @@ import PortalLayout from '../../../app/PortalLayout';
 const navItems = [
   { path: '/employee', label: 'Dashboard', icon: HomeIcon, end: true },
   { path: '/employee/attendance', label: 'Attendance', icon: ClockIcon },
+  {
+    path: '/employee/attendance-corrections',
+    label: 'Corrections',
+    icon: ClipboardDocumentListIcon,
+  },
   { path: '/employee/leave', label: 'Leave', icon: CalendarDaysIcon },
   { path: '/employee/salary', label: 'Salary', icon: BanknotesIcon },
   { path: '/employee/self-service', label: 'Self-Service', icon: ClipboardDocumentListIcon },

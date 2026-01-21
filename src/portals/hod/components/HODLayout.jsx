@@ -13,6 +13,7 @@ const navItems = [
   { path: '/hod', label: 'Dashboard', icon: ChartBarIcon, end: true },
   { path: '/hod/employees', label: 'Department Staff', icon: UsersIcon },
   { path: '/hod/attendance', label: 'Attendance', icon: ClockIcon },
+  { path: '/hod/attendance-corrections', label: 'Corrections', icon: ClipboardDocumentListIcon },
   { path: '/hod/leaves', label: 'Leave Requests', icon: CalendarDaysIcon },
   { path: '/hod/self-service', label: 'Manager Self-Service', icon: ClipboardDocumentListIcon },
   { path: '/hod/pams', label: 'PAMS', icon: DocumentChartBarIcon },

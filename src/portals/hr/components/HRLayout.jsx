@@ -44,6 +44,12 @@ const allNavItems = [
     roles: ['hr', 'admin'],
   },
   {
+    path: '/hr/attendance-corrections',
+    label: 'Corrections Audit',
+    icon: CheckBadgeIcon,
+    roles: ['hr', 'admin'],
+  },
+  {
     path: '/hr/recruitment',
     label: 'Recruitment & ATS',
     icon: UserPlusIcon,

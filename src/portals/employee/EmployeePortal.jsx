@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import EmployeeLayout from './components/EmployeeLayout';
 import Dashboard from './pages/Dashboard';
 import Attendance from './pages/Attendance';
+import AttendanceCorrections from './pages/AttendanceCorrections';
 import Leave from './pages/Leave';
 import Salary from './pages/Salary';
 import Profile from './pages/Profile';
@@ -18,6 +19,7 @@ export default function EmployeePortal() {
       <Route element={<EmployeeLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="attendance" element={<Attendance />} />
+        <Route path="attendance-corrections" element={<AttendanceCorrections />} />
         <Route path="leave" element={<Leave />} />
         <Route path="salary" element={<Salary />} />
         <Route path="self-service" element={<SelfService />} />

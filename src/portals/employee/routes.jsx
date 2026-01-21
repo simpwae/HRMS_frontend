@@ -4,6 +4,7 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import EmployeeLayout from './components/EmployeeLayout';
 import EmployeeDashboard from './pages/Dashboard';
 import Attendance from './pages/Attendance';
+import AttendanceCorrections from './pages/AttendanceCorrections';
 import Leave from './pages/Leave';
 import Salary from './pages/Salary';
 import Profile from './pages/Profile';
@@ -26,6 +27,7 @@ export const employeeRoutes = (
   >
     <Route index element={<EmployeeDashboard />} />
     <Route path="attendance" element={<Attendance />} />
+    <Route path="attendance-corrections" element={<AttendanceCorrections />} />
     <Route path="leave" element={<Leave />} />
     <Route path="salary" element={<Salary />} />
     <Route path="profile" element={<Profile />} />

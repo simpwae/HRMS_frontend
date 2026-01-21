@@ -4,6 +4,7 @@ import HODLayout from './components/HODLayout';
 import Dashboard from './pages/Dashboard';
 import DeptEmployees from './pages/DeptEmployees';
 import DeptAttendance from './pages/DeptAttendance';
+import AttendanceCorrections from './pages/AttendanceCorrections';
 import DeptLeaves from './pages/DeptLeaves';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
@@ -17,6 +18,7 @@ export default function HODPortal() {
         <Route index element={<Dashboard />} />
         <Route path="employees" element={<DeptEmployees />} />
         <Route path="attendance" element={<DeptAttendance />} />
+        <Route path="attendance-corrections" element={<AttendanceCorrections />} />
         <Route path="leaves" element={<DeptLeaves />} />
         <Route path="self-service" element={<SelfService />} />
         <Route path="pams" element={<PAMS />} />

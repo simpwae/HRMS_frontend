@@ -4,6 +4,7 @@ import HRLayout from './components/HRLayout';
 import Dashboard from './pages/Dashboard';
 import Employees from './pages/Employees';
 import AttendanceList from './pages/AttendanceList';
+import AttendanceCorrections from './pages/AttendanceCorrections';
 import LeavesList from './pages/LeavesList';
 import Promotions from './pages/Promotions';
 import Resignations from './pages/Resignations';
@@ -29,6 +30,7 @@ export default function HRPortal() {
         <Route path="employees" element={<Employees />} />
         <Route path="attendance" element={<Attendance />} />
         <Route path="attendance-list" element={<AttendanceList />} />
+        <Route path="attendance-corrections" element={<AttendanceCorrections />} />
         <Route path="leaves" element={<LeavesList />} />
         <Route path="promotions" element={<Promotions />} />
         <Route path="increments" element={<BulkIncrements />} />
